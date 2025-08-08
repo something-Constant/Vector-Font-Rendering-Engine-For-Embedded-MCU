@@ -21,7 +21,7 @@ typedef struct {
 // ======================
 // LETTERS (A-Z)
 // ======================
-static LineSegment A_seg[] = {{0, 10, 5, 0}, {5, 0, 10, 10}, {2, 5, 8, 5}};
+static LineSegment A_seg[] = {{5,0 ,0 , 10}, {5, 0, 10, 10}, {3, 5, 7, 5}};
 static LineSegment B_seg[] = {{0, 0, 0, 10},  {0, 0, 7, 0},   {0, 5, 7, 5},  {0, 10, 7, 10},
                               {7, 0, 10, 2},  {10, 2, 10, 4}, {10, 4, 7, 5}, {7, 5, 10, 6},
                               {10, 6, 10, 8}, {10, 8, 7, 10}};
@@ -190,34 +190,26 @@ static Glyph_Line font_table[] = {
     {':', 2, 10, 2, _colon},
     {';', 4, 10, 3, _semicolon}};
 
-// // Get glyph data for a character
-// Glyph *get_glyph(char c) {
-//     if (c >= 'A' && c <= 'Z')
-//         return &font_az[c - 'A'];
-
-//     else if ((c - 32) >= 'A' && (c - 32) <= 'Z')
-//         return &font_az[(c - 32) - 'A'];
-
-//     return NULL; // Character not supported
-// }
-
 Glyph_Line *get_glyph_Line(char c) {
     for (uint8_t i = 0; i < sizeof(font_table) / sizeof(Glyph_Line); i++) {
-        if (font_table[i].c == c)
+        if (font_table[i].c == c || font_table[i].c == (c - 32))
             return &font_table[i];
     }
     return NULL; // Character not supported
 }
 
-void draw_text(char *str, int16_t x, int16_t y, uint8_t scale) {
+void draw_text(char *str, int16_t x, int16_t y, uint8_t scale, uint8_t deph) {
     while (*str) {
         Glyph_Line *g = get_glyph_Line(*str++);
         if (!g)
             return;
 
-        for (uint8_t i = 0; i < g->segment_count; i++) {
-            DrawLine((x + g->segments[i].x1 * scale), (y + g->segments[i].y1 * scale),
-                     (x + g->segments[i].x2 * scale), (y + g->segments[i].y2 * scale));
+        for (uint8_t j = 0; j < deph; j++) {
+            for (uint8_t i = 0; i < g->segment_count; i++) {
+
+                DrawLine((x + j + (g->segments[i].x1 * scale)), (y + (g->segments[i].y1 * scale)),
+                         (x + j + (g->segments[i].x2 * scale)), (y + (g->segments[i].y2 * scale)));
+            }
         }
         x += g->width * scale + 5; // Advance cursor
     }
@@ -235,3 +227,4 @@ void GLCD_DrawChar(char c, uint8_t x, uint8_t y, uint8_t scale, uint8_t deph) {
         }
     }
 }
+
