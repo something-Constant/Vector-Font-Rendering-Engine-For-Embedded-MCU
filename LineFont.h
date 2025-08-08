@@ -107,7 +107,7 @@ static LineSegment _8_seg[] = {{0, 2, 2, 0},  {2, 0, 8, 0},   {8, 0, 10, 2},  {1
 static LineSegment _9_seg[] = {
     // Top loop
     {2, 0, 8, 0},  {8, 0, 10, 2}, {2, 10, 8, 10}, {10, 8, 8, 10}, {10, 3, 10, 7},
-    {2, 10, 0, 8}, {2, 5, 8, 5},  {0, 3, 0, 5},   {0, 2, 2, 0}
+    {2, 10, 0, 8}, {2, 5, 8, 5},  {0, 3, 0, 4},   {0, 2, 2, 0}
 
     // Stem
 
@@ -119,20 +119,21 @@ static LineSegment _9_seg[] = {
 
 // Fixed ! with short top cap, main stroke and dot
 static LineSegment _excl[] = {
-    {4, 0, 6, 0},
-    {5, 1, 5, 8}, // Main vertical (with cap)
     {4, 9, 6, 9},
-    {5, 9, 5, 10} // Square dot
+    {4, 8, 6, 8}, // Main vertical (with cap)
+    {5, 6, 5, 0},
+    {4, 0, 4, 3}, // Square dot
+    {6, 0, 6, 3}  // Square dot
+
 };
 
-/* ? */ static LineSegment _quest[] = {
-    {0, 2, 2, 0},   {2, 0, 8, 0},  {8, 0, 10, 2}, // Top curve
-    {10, 2, 10, 4}, {10, 4, 6, 6},                // Hook
-    {6, 6, 6, 8},   {5, 9, 7, 9},  {6, 9, 6, 10}  // Dot (3 segments for visibility)
-};
+/* ? */ static LineSegment _quest[] = {{0, 2, 2, 0},   {2, 0, 8, 0}, {8, 0, 10, 2}, // Top curve
+                                       {9, 3, 7, 5},   {7, 5, 7, 7},                // Hook
+
+                                       {6, 10, 8, 10}, {6, 9, 8, 9}};
 
 static LineSegment _period[] = {{5, 9, 5, 10}};
-static LineSegment _comma[] = {{5, 9, 5, 10}, {5, 10, 4, 11}};
+static LineSegment _comma[] = {{4, 8, 4, 9}, {4, 9, 3, 10}};
 static LineSegment _colon[] = {{5, 2, 5, 3}, {5, 7, 5, 8}};
 static LineSegment _semicolon[] = {{5, 2, 5, 3}, {5, 7, 5, 9}, {5, 9, 4, 10}};
 
@@ -182,8 +183,8 @@ static Glyph_Line font_table[] = {
     {'9', 10, 10, 9, _9_seg},
 
     // Symbols
-    {'!', 6, 10, 4, _excl},
-    {'?', 10, 10, 9, _quest},
+    {'!', 6, 10, 5, _excl},
+    {'?', 10, 10, 7, _quest},
     {'.', 2, 10, 1, _period},
     {',', 4, 10, 2, _comma},
     {':', 2, 10, 2, _colon},
