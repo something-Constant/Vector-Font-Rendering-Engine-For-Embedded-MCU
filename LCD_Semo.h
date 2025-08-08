@@ -1,7 +1,30 @@
+#include <fcntl.h>
+#include <io.h>
+#include <locale.h>
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <wchar.h>
 
 #define WIDTH 128
 #define HEIGHT 64
 #define BufferSize ((WIDTH * HEIGHT) >> 3)
+
+typedef struct {
+    int x0;
+    int y0;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+    int step;
+    int t;
+
+    int x;
+    int y;
+
+} Bezier;
 
 char Buffer[] = {};
 
@@ -180,6 +203,35 @@ void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
     }
 }
 
+int lerp(int min, int max, float t) {
+    int x;
+    x = round(max - min) * t + min;
+    return x;
+}
+
+int bezier_quad_int(int p0, int p1, int p2, int t, int n) {
+    int nt = n - t;
+    int n2 = (n * n);
+
+    return ((nt * nt) * p0 + 2 * nt * t * p1 + t * t * p2 + (n2 >> 1)) / n2;
+}
+
+int lerpFix(int min, int max, int t, int step) {
+    if (!t)
+        return 0;
+    else
+        return ((((max - min) * t + (step / 2)) / step) + min);
+}
+
+void bezier(Bezier *Main) {
+
+    for (Main->t = 0; Main->t <= Main->step; Main->t++) {
+        Main->x = bezier_quad_int(Main->x0, Main->x1, Main->x2, Main->t, Main->step);
+        Main->y = bezier_quad_int(Main->y0, Main->y1, Main->y2, Main->t, Main->step);
+    }
+}
+
+/*
 void DrawLine_Modifyed(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 
     int16_t adx = ((x1 > x0) ? x1 - x0 : x0 - x1);
@@ -310,38 +362,4 @@ void DrawLine_Bresenhams(uint8_t X0, uint8_t Y0, uint8_t X1, uint8_t Y1) {
 char Squer[4] = {
 
     0xff, 0xff, 0xff, 0xff};
-
-int lerp(int min, int max, float t) {
-    int x;
-    x = round(max - min) * t + min;
-    return x;
-}
-
-int bezier_quad_int(int p0, int p1, int p2, int t, int n) {
-    int nt = n - t;
-    int n2 = (n * n);
-
-    return ((nt * nt) * p0 + 2 * nt * t * p1 + t * t * p2 + (n2 >> 1)) / n2;
-}
-
-int lerpFix(int min, int max, int t, int step) {
-    if (!t)
-        return 0;
-    else
-        return ((((max - min) * t + (step / 2)) / step) + min);
-}
-
-typedef struct {
-    int x0;
-    int y0;
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-    float Step;
-    float t;
-
-    int x;
-    int y;
-
-} Bezier;
+*/

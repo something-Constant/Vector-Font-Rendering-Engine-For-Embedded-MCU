@@ -1,4 +1,3 @@
-#pragma once
 #include <stdint.h>
 
 // Line segment structure (8-bit signed for compactness)
@@ -13,7 +12,7 @@ typedef struct {
     uint8_t height;        // Glyph height
     uint8_t segment_count; // Number of line segments
     LineSegment *segments;
-} Glyph;
+} Glyph_Line;
 
 // -------------------------------
 // Individual Letter Definitions
@@ -180,7 +179,7 @@ static LineSegment symbol_colon_segments[] = {{5, 2, 5, 3}, {5, 7, 5, 8}};
 // -------------------------------
 // Font Lookup Table
 // -------------------------------
-static Glyph font_digits_symbols[] = {
+static Glyph_Line font_digits_symbols[] = {
     {'A', 10, 10, sizeof(A_segments) / sizeof(LineSegment), A_segments},
     {'B', 10, 10, sizeof(B_segments) / sizeof(LineSegment), B_segments},
     {'C', 10, 10, sizeof(C_segments) / sizeof(LineSegment), C_segments},
@@ -236,8 +235,8 @@ static Glyph font_digits_symbols[] = {
 //     return NULL; // Character not supported
 // }
 
-Glyph *get_glyph(char c) {
-    for (uint8_t i = 0; i < sizeof(font_digits_symbols) / sizeof(Glyph); i++) {
+Glyph_Line *get_glyph_Line(char c) {
+    for (uint8_t i = 0; i < sizeof(font_digits_symbols) / sizeof(Glyph_Line); i++) {
         if (font_digits_symbols[i].c == c)
             return &font_digits_symbols[i];
     }
@@ -246,7 +245,7 @@ Glyph *get_glyph(char c) {
 
 void draw_text(char *str, int16_t x, int16_t y, uint8_t scale) {
     while (*str) {
-        Glyph *g = get_glyph(*str++);
+        Glyph_Line *g = get_glyph_Line(*str++);
         if (!g)
             return;
 
@@ -259,14 +258,14 @@ void draw_text(char *str, int16_t x, int16_t y, uint8_t scale) {
 }
 
 void GLCD_DrawChar(char c, uint8_t x, uint8_t y, uint8_t scale, uint8_t deph) {
-    Glyph *g = get_glyph(c);
+    Glyph_Line *g = get_glyph_Line(c);
     if (!g)
         return;
     for (uint8_t j = 0; j < deph; j++) {
         for (uint8_t i = 0; i < g->segment_count; i++) {
 
-            DrawLine((x + j + (g->segments[i].x1 * scale)), (y + j + (g->segments[i].y1 * scale)),
-                     (x + j + (g->segments[i].x2 * scale)), (y + j + (g->segments[i].y2 * scale)));
+            DrawLine((x + j + (g->segments[i].x1 * scale)), (y + (g->segments[i].y1 * scale)),
+                     (x + j + (g->segments[i].x2 * scale)), (y + (g->segments[i].y2 * scale)));
         }
     }
 }

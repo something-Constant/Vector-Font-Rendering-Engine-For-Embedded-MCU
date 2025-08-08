@@ -1,4 +1,3 @@
-#include "LCD_Semo.h"
 #include <stdint.h>
 
 // Quadratic Bézier segment (6 bytes)
@@ -214,22 +213,31 @@ Glyph_Bez *get_glyph_BezGlyph(char c) {
 }
 
 // Draw text string
-void draw_text_bezier(const char *str, int16_t x, int16_t y, uint8_t scale) {
+void draw_text_bezier(char *str, int16_t x, int16_t y, uint8_t scale) {
     while (*str) {
-        const Glyph_Bez *g = get_glyph_BezGlyph(*str++);
+        Glyph_Bez *g = get_glyph_BezGlyph(*str++);
         if (!g)
-            continue;
+            return;
+
+        Bezier line = {.step = 30};
 
         for (uint8_t i = 0; i < g->seg_count; i++) {
-            BezierSegment seg = g->segs[i];
-            
-            bezier_quad_int(x + seg.x0 * scale, y + seg.y0 * scale, x + seg.x1 * scale,
-                            y + seg.y1 * scale, x + seg.x2 * scale, y + seg.y2 * scale);
-                            
+
+            line.x0 = (x + g->segs[i].x0 * scale);
+            line.x1 = (x + g->segs[i].x1 * scale);
+            line.x2 = (x + g->segs[i].x2 * scale);
+
+            line.y0 = (y + g->segs[i].y0 * scale);
+            line.y1 = (y + g->segs[i].y1 * scale);
+            line.y2 = (y + g->segs[i].y2 * scale);
+
+            bezier(&line);
+
+            // bezier_quad_int((x + seg.x0 * scale), y + seg.y0 * scale, x + seg.x1 * scale,
+            //                 y + seg.y1 * scale, x + seg.x2 * scale, y + seg.y2 * scale);
         }
         x += g->width * scale + 2; // Advance cursor
     }
 }
 
 // Example: Draw "HELLO 123!" at (10,20) with 2x scale
-draw_text_bezier("HELLO 123!", 10, 20, 2);
