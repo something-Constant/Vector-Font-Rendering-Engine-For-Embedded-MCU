@@ -1,3 +1,5 @@
 *
 !.gitignore
-!/PC_LCD_Simulation
+!PC_LCD_Simulation/** 
+!LICENSE
+!README.md
