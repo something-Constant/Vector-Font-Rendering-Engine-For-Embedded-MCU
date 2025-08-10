@@ -1,5 +1,5 @@
-*
+/*
 !.gitignore
-!PC_LCD_Simulation/** 
 !LICENSE
 !README.md
+!PC_LCD_Simulation
