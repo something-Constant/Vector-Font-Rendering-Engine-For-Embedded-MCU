@@ -1,4 +1,4 @@
-#include "LCD_Semo.h"
+#include "LCD_CMD_Simulation.h"
 #include "10x10_FontRender.h"
 #include "LineFont_5x5x.h"
 
