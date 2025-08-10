@@ -3,241 +3,391 @@
 // Quadratic Bézier segment (6 bytes)
 typedef struct {
     int8_t x0, y0; // Start point
-    int8_t x1, y1; // Control point
-    int8_t x2, y2; // End point
-} BezierSegment;
+    int8_t cx, cy; // Control point
+    int8_t x1, y1; // End point
+} QuadBezier;
 
-// Glyph_Bez metadata (4 bytes + curve data)
+// Glyph metadata
 typedef struct {
     char c;            // ASCII character
-    uint8_t seg_count; // Number of segments
-    uint8_t width;     // Glyph_Bez width (units)
-    BezierSegment *segs;
+    uint8_t seg_count; // Number of quad segments
+    uint8_t width;     // Glyph cell width (monospaced 9)
+    QuadBezier *segs;
 } Glyph_Bez;
 
+uint8_t font_data[] = {
+    // 'A'
+    'A', 8, 8, 3,  0,7, 3,0,  3,0, 7,7,  1,4, 6,4,
+    // 'B'
+    'B', 8, 8, 6,  0,0, 0,7,  0,0, 5,0,  0,3, 5,3,  0,7, 5,7,  5,0, 5,3,  5,3, 5,7,
+    // 'C'
+    'C', 8, 8, 3,  6,0, 1,0,  1,0, 1,7,  1,7, 6,7,
+    // 'D'
+    'D', 8, 8, 4,  0,0, 0,7,  0,0, 4,0,  0,7, 4,7,  4,0, 4,7,
+    // 'E'
+    'E', 8, 8, 4,  0,0, 0,7,  0,0, 7,0,  0,3, 5,3,  0,7, 7,7,
+    // 'F'
+    'F', 8, 8, 3,  0,0, 0,7,  0,0, 7,0,  0,3, 5,3,
+    // 'G'
+    'G', 8, 8, 6,  4,3, 7,3,  7,3, 7,7,  7,7, 1,7,  1,7, 1,0,  1,0, 6,0,  6,0, 6,3,
+    // 'H'
+    'H', 8, 8, 3,  0,0, 0,7,  0,3, 7,3,  7,0, 7,7,
+    // 'I'
+    'I', 8, 8, 3,  3,0, 3,7,  1,0, 5,0,  1,7, 5,7,
+    // 'J'
+    'J', 8, 8, 4,  6,0, 6,7,  6,7, 1,7,  1,7, 1,4,  0,3, 1,4,
+    // 'K'
+    'K', 8, 8, 3,  0,0, 0,7,  0,3, 6,0,  0,3, 6,7,
+    // 'L'
+    'L', 8, 8, 2,  0,0, 0,7,  0,7, 7,7,
+    // 'M'
+    'M', 8, 8, 4,  0,7, 0,0,  0,0, 3,4,  3,4, 7,0,  7,0, 7,7,
+    // 'N'
+    'N', 8, 8, 3,  0,7, 0,0,  0,0, 7,7,  7,7, 7,0,
+    // 'O'
+    'O', 8, 8, 4,  1,0, 6,0,  6,0, 6,7,  6,7, 1,7,  1,7, 1,0,
+    // 'P'
+    'P', 8, 8, 4,  0,0, 0,7,  0,0, 5,0,  0,3, 5,3,  5,0, 5,3,
+    // 'Q'
+    'Q', 8, 8, 5,  1,0, 6,0,  6,0, 6,7,  6,7, 1,7,  1,7, 1,0,  4,4, 7,7,
+    // 'R'
+    'R', 8, 8, 5,  0,0, 0,7,  0,0, 5,0,  0,3, 5,3,  5,0, 5,3,  0,3, 5,7,
+    // 'S'
+    'S', 8, 8, 6,  5,0, 1,0,  1,0, 1,3,  1,3, 5,3,  5,3, 5,7,  5,7, 1,7,  1,7, 1,3,
+    // 'T'
+    'T', 8, 8, 2,  3,0, 3,7,  0,0, 7,0,
+    // 'U'
+    'U', 8, 8, 3,  0,0, 0,7,  0,7, 7,7,  7,7, 7,0,
+    // 'V'
+    'V', 8, 8, 2,  0,0, 3,7,  3,7, 7,0,
+    // 'W'
+    'W', 8, 8, 4,  0,0, 0,7,  0,7, 3,4,  3,4, 7,7,  7,7, 7,0,
+    // 'X'
+    'X', 8, 8, 2,  0,0, 7,7,  0,7, 7,0,
+    // 'Y'
+    'Y', 8, 8, 3,  0,0, 3,3,  7,0, 3,3,  3,3, 3,7,
+    // 'Z'
+    'Z', 8, 8, 3,  0,0, 7,0,  7,0, 0,7,  0,7, 7,7,
+    // '0'
+    '0', 8, 8, 6,  2,0, 5,0,  5,0, 7,2,  7,2, 7,5,  7,5, 5,7,  5,7, 2,7,  2,7, 0,5,  0,5, 0,2,  0,2, 2,0,
+    // '1'
+    '1', 8, 8, 2,  3,0, 3,7,  1,7, 5,7,
+    // '2'
+    '2', 8, 8, 5,  0,0, 6,0,  6,0, 6,3,  6,3, 0,7,  0,7, 6,7,  0,7, 0,3,
+    // '3'
+    '3', 8, 8, 6,  0,0, 5,0,  5,0, 5,7,  5,7, 0,7,  0,3, 5,3,  5,3, 5,0,  0,3, 0,0,
+    // '4'
+    '4', 8, 8, 3,  0,0, 0,3,  0,3, 6,3,  6,0, 6,7,
+    // '5'
+    '5', 8, 8, 5,  6,0, 0,0,  0,0, 0,3,  0,3, 5,3,  5,3, 5,7,  5,7, 0,7,
+    // '6'
+    '6', 8, 8, 5,  5,0, 0,0,  0,0, 0,7,  0,7, 5,7,  5,7, 5,3,  5,3, 0,3,
+    // '7'
+    '7', 8, 8, 2,  0,0, 6,0,  6,0, 0,7,
+    // '8'
+    '8', 8, 8, 4,  0,0, 6,0,  6,0, 6,7,  6,7, 0,7,  0,7, 0,0,  0,3, 6,3,
+    // '9'
+    '9', 8, 8, 5,  0,7, 6,7,  6,7, 6,0,  6,0, 0,0,  0,0, 0,3,  0,3, 6,3,
+    // '+'
+    '+', 8, 8, 2,  3,1, 3,6,  0,3, 6,3,
+    // '-'
+    '-', 8, 8, 1,  0,3, 6,3,
+    // '*'
+    '*', 8, 8, 6,  3,1, 3,6,  1,3, 5,3,  2,2, 4,4,  2,4, 4,2,  0,3, 6,3,  3,1, 3,6,
+    // '/'
+    '/', 8, 8, 1,  0,7, 7,0,
+    // '?'
+    '?', 8, 8, 5,  0,0, 3,0,  3,0, 6,3,  6,3, 6,5,  6,5, 3,7,  3,5, 3,6,
+    // '!'
+    '!', 8, 8, 2,  3,0, 3,5,  3,7, 3,7,
+    // '%'
+    '%', 8, 8, 5,  0,0, 7,7,  1,1, 2,1,  2,1, 1,2,  1,2, 2,2,  5,5, 6,5,  6,5, 5,6,  5,6, 6,6,
+    // '('
+    '(', 8, 8, 3,  4,0, 2,2,  2,2, 2,5,  2,5, 4,7,
+    // ')'
+    ')', 8, 8, 3,  2,0, 4,2,  4,2, 4,5,  4,5, 2,7,
+    // '='
+    '=', 8, 8, 2,  0,2, 7,2,  0,5, 7,5,
+    // ';'
+    ';', 8, 8, 2,  3,5, 3,7,  2,7, 3,7,
+    // ':'
+    ':', 8, 8, 2,  3,1, 3,2,  3,5, 3,6,
+    // ','
+    ',', 8, 8, 1,  3,6, 2,7,
+    // '.'
+    '.', 8, 8, 1,  3,6, 3,7,
+    // '"'
+    '"', 8, 8, 2,  2,0, 2,2,  5,0, 5,2,
+    // '\''
+    '\'', 8, 8, 1,  3,0, 3,2,
+};
+
+/*
 // -------------------------------
-// Uppercase Letters (A-Z)
+// Digits 0-9 (monospaced)
 // -------------------------------
-static BezierSegment A_segs[] = {{0, 10, 2, 5, 5, 0}, {5, 0, 8, 5, 10, 10}, {2, 5, 5, 5, 8, 5}};
-static BezierSegment B_segs[] = {
-    {0, 0, 6, 0, 8, 2}, {8, 2, 10, 4, 8, 6}, {8, 6, 6, 8, 0, 8}, {0, 0, 0, 4, 0, 8}};
-static BezierSegment C_segs[] = {
-    {10, 2, 8, 0, 2, 0}, {2, 0, 0, 2, 0, 8}, {0, 8, 2, 10, 8, 10}, {8, 10, 10, 8, 10, 6}};
-static BezierSegment D_segs[] = {{0, 0, 6, 0, 10, 4}, {10, 4, 10, 6, 6, 10}, {6, 10, 0, 10, 0, 5}};
-static BezierSegment E_segs[] = {
-    {10, 0, 0, 0, 0, 0}, {0, 0, 0, 5, 8, 5}, {0, 5, 0, 10, 10, 10}, {0, 0, 0, 0, 0, 10}};
-static BezierSegment F_segs[] = {{0, 0, 0, 0, 0, 10}, {0, 0, 0, 0, 10, 0}, {0, 5, 0, 5, 6, 5}};
-static BezierSegment G_segs[] = {{10, 2, 8, 0, 2, 0},
-                                 {2, 0, 0, 2, 0, 8},
-                                 {0, 8, 2, 10, 8, 10},
-                                 {8, 10, 10, 8, 10, 4},
-                                 {10, 4, 6, 4, 6, 4}};
-static BezierSegment H_segs[] = {{0, 0, 0, 0, 0, 10}, {10, 0, 10, 0, 10, 10}, {0, 5, 0, 5, 10, 5}};
-static BezierSegment I_segs[] = {{0, 0, 5, 0, 10, 0}, {5, 0, 5, 0, 5, 10}, {0, 10, 5, 10, 10, 10}};
-static BezierSegment J_segs[] = {{5, 0, 5, 0, 5, 8}, {5, 8, 3, 10, 0, 10}};
-static BezierSegment K_segs[] = {{0, 0, 0, 0, 0, 10}, {0, 5, 0, 5, 10, 0}, {0, 5, 0, 5, 10, 10}};
-static BezierSegment L_segs[] = {{0, 0, 0, 0, 0, 10}, {0, 10, 0, 10, 10, 10}};
-static BezierSegment M_segs[] = {{0, 10, 0, 5, 5, 0}, {5, 0, 10, 5, 10, 10}};
-static BezierSegment N_segs[] = {{0, 10, 0, 0, 10, 10}, {10, 10, 10, 0, 10, 0}};
-static BezierSegment O_segs[] = {
-    {0, 2, 2, 0, 8, 0}, {8, 0, 10, 2, 10, 8}, {10, 8, 8, 10, 2, 10}, {2, 10, 0, 8, 0, 2}};
-static BezierSegment P_segs[] = {
-    {0, 0, 0, 0, 0, 10}, {0, 0, 6, 0, 8, 2}, {8, 2, 8, 6, 6, 8}, {6, 8, 0, 8, 0, 5}};
-static BezierSegment Q_segs[] = {{0, 2, 2, 0, 8, 0},
-                                 {8, 0, 10, 2, 10, 8},
-                                 {10, 8, 8, 10, 2, 10},
-                                 {2, 10, 0, 8, 0, 2},
-                                 {6, 6, 8, 8, 10, 10}};
-static BezierSegment R_segs[] = {{0, 0, 0, 0, 0, 10},
-                                 {0, 0, 6, 0, 8, 2},
-                                 {8, 2, 8, 6, 6, 8},
-                                 {6, 8, 0, 8, 0, 5},
-                                 {6, 8, 8, 10, 10, 10}};
-static BezierSegment S_segs[] = {{10, 2, 8, 0, 2, 0},
-                                 {2, 0, 0, 2, 0, 4},
-                                 {0, 4, 2, 6, 8, 6},
-                                 {8, 6, 10, 8, 10, 10},
-                                 {10, 10, 8, 12, 2, 12}};
-static BezierSegment T_segs[] = {{0, 0, 5, 0, 10, 0}, {5, 0, 5, 0, 5, 10}};
-static BezierSegment U_segs[] = {{0, 0, 0, 8, 2, 10}, {2, 10, 8, 10, 10, 8}, {10, 8, 10, 0, 10, 0}};
-static BezierSegment V_segs[] = {0, 0, 5, 10, 10, 0};
-static BezierSegment W_segs[] = {{0, 0, 2, 10, 5, 5}, {5, 5, 8, 10, 10, 0}};
-static BezierSegment X_segs[] = {{0, 0, 5, 5, 10, 10}, {10, 0, 5, 5, 0, 10}};
-static BezierSegment Y_segs[] = {{0, 0, 5, 5, 10, 0}, {5, 5, 5, 5, 5, 10}};
-static BezierSegment Z_segs[] = {
-    {0, 0, 10, 0, 10, 0}, {10, 0, 0, 10, 0, 10}, {0, 10, 10, 10, 10, 10}};
+static QuadBezier _0_segs[] = {
+    {2,1, 4,0, 6,1},
+    {6,1, 8,3, 8,5},
+    {8,5, 8,7, 6,8},
+    {6,8, 4,9, 2,8},
+    {2,8, 0,6, 0,5},
+    {0,5, 0,3, 2,1}
+};
 
-// Digits (0-9)
-static BezierSegment _0_segs[] = {
-    {5, 0, 10, 0, 10, 5}, {10, 5, 10, 10, 5, 10}, {5, 10, 0, 10, 0, 5}, {0, 5, 0, 0, 5, 0}};
-static BezierSegment _1_segs[] = {{5, 0, 5, 0, 5, 10}, {3, 2, 4, 1, 5, 0}, {5, 10, 4, 9, 3, 8}};
-static BezierSegment _2_segs[] = {
-    {0, 2, 2, 0, 8, 0}, {8, 0, 10, 2, 10, 4}, {10, 4, 0, 10, 0, 10}, {0, 10, 10, 10, 10, 10}};
-static BezierSegment _3_segs[] = {{0, 2, 2, 0, 8, 0},     {8, 0, 10, 2, 10, 4},
-                                  {10, 4, 8, 6, 2, 6},    {2, 6, 8, 6, 10, 8},
-                                  {10, 8, 10, 10, 8, 12}, {8, 12, 2, 12, 0, 10}};
-static BezierSegment _4_segs[] = {{8, 0, 0, 6, 0, 6}, {0, 6, 10, 6, 10, 6}, {6, 0, 6, 0, 6, 10}};
-static BezierSegment _5_segs[] = {{10, 0, 0, 0, 0, 0},
-                                  {0, 0, 0, 5, 8, 5},
-                                  {8, 5, 10, 6, 10, 8},
-                                  {10, 8, 8, 10, 2, 10},
-                                  {2, 10, 0, 8, 0, 8}};
-static BezierSegment _6_segs[] = {{10, 2, 8, 0, 2, 0},
-                                  {2, 0, 0, 2, 0, 8},
-                                  {0, 8, 2, 10, 8, 10},
-                                  {8, 10, 10, 8, 10, 6},
-                                  {10, 6, 8, 4, 2, 4}};
-static BezierSegment _7_segs[] = {{0, 0, 10, 0, 10, 0}, {10, 0, 2, 10, 2, 10}};
-static BezierSegment _8_segs[] = {
-    {0, 2, 2, 0, 8, 0},    {8, 0, 10, 2, 10, 4},   {10, 4, 8, 6, 2, 6}, {2, 6, 0, 8, 0, 10},
-    {0, 10, 2, 12, 8, 12}, {8, 12, 10, 10, 10, 8}, {10, 8, 8, 6, 2, 6}};
-static BezierSegment _9_segs[] = {
-    {10, 6, 8, 8, 2, 8}, {2, 8, 0, 6, 0, 2}, {0, 2, 2, 0, 8, 0}, {8, 0, 10, 2, 10, 6}};
+static QuadBezier _1_segs[] = {
+    {4,0, 4,0, 4,7},
+    {3,7, 4,9, 5,9}
+};
 
-// Symbols
-static BezierSegment _excl_segs[] = {{5, 0, 5, 5, 5, 8}, {5, 9, 5, 10, 5, 10}};
-static BezierSegment _quest_segs[] = {
-    {0, 2, 5, 0, 10, 2}, {10, 2, 8, 4, 6, 5}, {6, 8, 6, 9, 6, 10}};
-static BezierSegment _period_segs[] = {5, 9, 5, 10, 5, 10};
-static BezierSegment _comma_segs[] = {5, 9, 5, 10, 4, 11};
-static BezierSegment _colon_segs[] = {{5, 2, 5, 3, 5, 3}, {5, 7, 5, 8, 5, 8}};
-static BezierSegment _semicolon_segs[] = {{5, 2, 5, 3, 5, 3}, {5, 7, 5, 9, 4, 10}};
-static BezierSegment _plus_segs[] = {{5, 0, 5, 5, 5, 10}, {0, 5, 5, 5, 10, 5}};
-static BezierSegment _minus_segs[] = {0, 5, 5, 5, 10, 5};
-static BezierSegment _equal_segs[] = {{0, 3, 5, 3, 10, 3}, {0, 7, 5, 7, 10, 7}};
-static BezierSegment _at_segs[] = {{10, 5, 5, 0, 0, 5},
-                                   {0, 5, 0, 8, 2, 10},
-                                   {2, 10, 8, 10, 10, 8},
-                                   {10, 8, 10, 3, 6, 3},
-                                   {6, 3, 6, 6, 8, 6}};
-static BezierSegment _hash_segs[] = {
-    {2, 0, 2, 0, 2, 10}, {8, 0, 8, 0, 8, 10}, {0, 3, 10, 3, 10, 3}, {0, 7, 10, 7, 10, 7}};
-static BezierSegment _dollar_segs[] = {
-    {5, 0, 5, 2, 5, 8}, {5, 8, 5, 10, 5, 10}, {2, 2, 8, 2, 8, 2}, {2, 8, 8, 8, 8, 8}};
-static BezierSegment _percent_segs[] = {
-    {0, 0, 10, 10, 10, 10}, {2, 2, 3, 2, 3, 2}, {7, 8, 8, 8, 8, 8}};
-static BezierSegment _ampersand_segs[] = {
-    {10, 0, 5, 5, 0, 10}, {0, 5, 5, 5, 10, 0}, {5, 5, 10, 10, 10, 10}};
-static BezierSegment _asterisk_segs[] = {
-    {5, 0, 5, 5, 5, 10}, {0, 3, 10, 7, 10, 7}, {10, 3, 0, 7, 0, 7}};
-static BezierSegment _lparen_segs[] = {6, 0, 3, 3, 0, 10};
-static BezierSegment _rparen_segs[] = {0, 0, 3, 7, 6, 10};
-static BezierSegment _lbracket_segs[] = {
-    {6, 0, 2, 0, 2, 0}, {2, 0, 2, 10, 2, 10}, {2, 10, 6, 10, 6, 10}};
-static BezierSegment _rbracket_segs[] = {
-    {0, 0, 4, 0, 4, 0}, {4, 0, 4, 10, 4, 10}, {4, 10, 0, 10, 0, 10}};
-static BezierSegment _lbrace_segs[] = {{6, 0, 3, 0, 0, 5}, {0, 5, 3, 10, 6, 10}};
-static BezierSegment _rbrace_segs[] = {{0, 0, 3, 0, 6, 5}, {6, 5, 3, 10, 0, 10}};
-static BezierSegment _lt_segs[] = {10, 0, 0, 5, 10, 10};
-static BezierSegment _gt_segs[] = {0, 0, 10, 5, 0, 10};
-static BezierSegment _slash_segs[] = {10, 0, 0, 10, 0, 10};
+static QuadBezier _2_segs[] = {
+    {1,2, 3,0, 6,0},
+    {6,0, 8,0, 8,2},
+    {8,2, 2,6, 1,9},
+    {1,9, 8,9, 8,9}
+};
+
+static QuadBezier _3_segs[] = {
+    {1,2, 3,0, 6,0},
+    {6,0, 8,2, 6,4},
+    {6,4, 8,6, 6,8},
+    {6,8, 3,9, 1,7}
+};
+
+static QuadBezier _4_segs[] = {
+    {7,0, 2,5, 2,5},
+    {2,5, 8,5, 8,5},
+    {8,0, 8,9, 8,9}
+};
+
+static QuadBezier _5_segs[] = {
+    {8,0, 2,0, 1,0},
+    {1,0, 1,4, 6,4},
+    {6,4, 8,6, 7,9},
+    {7,9, 3,9, 1,7}
+};
+
+static QuadBezier _6_segs[] = {
+    {7,2, 5,0, 2,1},
+    {2,1, 0,3, 0,6},
+    {0,6, 2,8, 5,8},
+    {5,8, 7,8, 7,6},
+    {7,6, 5,5, 2,5}
+};
+
+static QuadBezier _7_segs[] = {
+    {1,1, 8,1, 8,1},
+    {8,1, 2,9, 2,9}
+};
+
+static QuadBezier _8_segs[] = {
+    {4,2, 6,0, 7,2},
+    {7,2, 8,4, 6,5},
+    {6,5, 8,6, 7,8},
+    {7,8, 5,9, 4,7},
+    {4,7, 2,6, 3,4}
+};
+
+static QuadBezier _9_segs[] = {
+    {6,6, 8,4, 8,2},
+    {8,2, 6,0, 4,1},
+    {4,1, 2,2, 2,4},
+    {2,4, 3,6, 5,6}
+};
 
 // -------------------------------
-// Font Lookup Table
+// Symbols: ! % _ - ? + *
 // -------------------------------
-static Glyph_Bez bezier_font[] = {
-    // Letters A-Z
-    {'A', 3, 10, A_segs},
-    {'B', 4, 10, B_segs},
-    {'C', 4, 10, C_segs},
-    {'D', 3, 10, D_segs},
-    {'E', 4, 10, E_segs},
-    {'F', 3, 10, F_segs},
-    {'G', 5, 10, G_segs},
-    {'H', 3, 10, H_segs},
-    {'I', 3, 10, I_segs},
-    {'J', 2, 10, J_segs},
-    {'K', 3, 10, K_segs},
-    {'L', 2, 10, L_segs},
-    {'M', 2, 10, M_segs},
-    {'N', 2, 10, N_segs},
-    {'O', 4, 10, O_segs},
-    {'P', 4, 10, P_segs},
-    {'Q', 5, 10, Q_segs},
-    {'R', 5, 10, R_segs},
-    {'S', 5, 10, S_segs},
-    {'T', 2, 10, T_segs},
-    {'U', 3, 10, U_segs},
-    {'V', 1, 10, V_segs},
-    {'W', 2, 10, W_segs},
-    {'X', 2, 10, X_segs},
-    {'Y', 2, 10, Y_segs},
-    {'Z', 3, 10, Z_segs},
+static QuadBezier _excl_segs[] = {
+    {4,1, 4,2, 4,7}, // stem (inverted Y: top small number is towards top)
+    {4,8, 4,8, 4,8}  // dot
+};
 
-    // Digits 0-9
-    {'0', 4, 10, _0_segs},
-    {'1', 3, 10, _1_segs},
-    {'2', 4, 10, _2_segs},
-    {'3', 6, 10, _3_segs},
-    {'4', 3, 10, _4_segs},
-    {'5', 5, 10, _5_segs},
-    {'6', 5, 10, _6_segs},
-    {'7', 2, 10, _7_segs},
-    {'8', 7, 10, _8_segs},
-    {'9', 4, 10, _9_segs},
+static QuadBezier _percent_segs[] = {
+    {0,8, 3,5, 6,2},
+    {2,2, 2,2, 2,2}, // small circle top-left (degenerate low-res)
+    {6,6, 6,6, 6,6}  // small circle bottom-right
+};
 
-    // Symbols
-    {'!', 2, 10, _excl_segs},
-    {'?', 3, 10, _quest_segs},
-    {'.', 1, 10, _period_segs},
-    {',', 1, 11, _comma_segs},
-    {':', 2, 10, _colon_segs},
-    {';', 2, 10, _semicolon_segs},
-    {'+', 2, 10, _plus_segs},
-    {'-', 1, 10, _minus_segs},
-    {'=', 2, 10, _equal_segs},
-    {'@', 5, 10, _at_segs},
-    {'#', 4, 10, _hash_segs},
-    {'$', 4, 10, _dollar_segs},
-    {'%', 3, 10, _percent_segs},
-    {'&', 3, 10, _ampersand_segs},
-    {'*', 3, 10, _asterisk_segs},
-    {'(', 1, 10, _lparen_segs},
-    {')', 1, 10, _rparen_segs},
-    {'[', 3, 10, _lbracket_segs},
-    {']', 3, 10, _rbracket_segs},
-    {'{', 2, 10, _lbrace_segs},
-    {'}', 2, 10, _rbrace_segs},
-    {'<', 1, 10, _lt_segs},
-    {'>', 1, 10, _gt_segs},
-    {'/', 1, 10, _slash_segs}};
+static QuadBezier _underscore_segs[] = {
+    {0,9, 4,9, 8,9}
+};
 
-// Get glyph_BezGlyph_Bez by ASCII code
+static QuadBezier _minus_segs[] = {
+    {1,5, 4,5, 7,5}
+};
+
+static QuadBezier _quest_segs[] = {
+    {2,1, 4,0, 6,1},
+    {6,1, 7,3, 5,4},
+    {5,6, 5,6, 5,7},
+    {5,8, 5,8, 5,8}
+};
+
+static QuadBezier _plus_segs[] = {
+    {4,1, 4,4, 4,7},
+    {1,4, 4,4, 7,4}
+};
+
+static QuadBezier _asterisk_segs[] = {
+    {4,0, 4,3, 4,6},
+    {1,2, 7,2, 7,2},
+    {1,6, 7,6, 7,6}
+};
+
+// -------------------------------
+// Font lookup table (monospaced width = 9)
+// -------------------------------
+// static Glyph_Bez bezier_font[] = {
+//     {'A', 3, 9, A_segs},
+//     {'B', 5, 9, B_segs},
+//     {'C', 4, 9, C_segs},
+//     {'D', 3, 9, D_segs},
+//     {'E', 4, 9, E_segs},
+//     {'F', 3, 9, F_segs},
+//     {'G', 5, 9, G_segs},
+//     {'H', 3, 9, H_segs},
+//     {'I', 1, 9, I_segs},
+//     {'J', 2, 9, J_segs},
+//     {'K', 2, 9, K_segs},
+//     {'L', 2, 9, L_segs},
+//     {'M', 4, 9, M_segs},
+//     {'N', 3, 9, N_segs},
+//     {'O', 6, 9, O_segs},
+//     {'P', 3, 9, P_segs},
+//     {'Q', 5, 9, Q_segs},
+//     {'R', 4, 9, R_segs},
+//     {'S', 5, 9, S_segs},
+//     {'T', 2, 9, T_segs},
+//     {'U', 3, 9, U_segs},
+//     {'V', 2, 9, V_segs},
+//     {'W', 3, 9, W_segs},
+//     {'X', 2, 9, X_segs},
+//     {'Y', 2, 9, Y_segs},
+//     {'Z', 3, 9, Z_segs},
+
+//     {'0', 6, 9, _0_segs},
+//     {'1', 2, 9, _1_segs},
+//     {'2', 4, 9, _2_segs},
+//     {'3', 4, 9, _3_segs},
+//     {'4', 3, 9, _4_segs},
+//     {'5', 4, 9, _5_segs},
+//     {'6', 5, 9, _6_segs},
+//     {'7', 2, 9, _7_segs},
+//     {'8', 5, 9, _8_segs},
+//     {'9', 4, 9, _9_segs},
+
+//     {'!', 2, 9, _excl_segs},
+//     {'%', 3, 9, _percent_segs},
+//     {'_', 1, 9, _underscore_segs},
+//     {'-', 1, 9, _minus_segs},
+//     {'?', 4, 9, _quest_segs},
+//     {'+', 2, 9, _plus_segs},
+//     {'*', 3, 9, _asterisk_segs}
+// };
+
+// Font array definition
+// Glyph_Bez bezier_font[] = {
+//     {'A', 3, 5, A_segs}, {'B', 5, 5, B_segs}, {'C', 3, 5, C_segs},
+//     {'D', 4, 5, D_segs}, {'E', 4, 5, E_segs}, {'F', 3, 5, F_segs},
+//     {'G', 5, 5, G_segs}, {'H', 3, 5, H_segs}, {'I', 3, 5, I_segs},
+//     {'J', 4, 5, J_segs}, {'K', 3, 5, K_segs}, {'L', 2, 5, L_segs},
+//     {'M', 3, 5, M_segs}, {'N', 3, 5, N_segs}, {'O', 4, 5, O_segs},
+//     {'P', 4, 5, P_segs}, {'Q', 5, 5, Q_segs}, {'R', 5, 5, R_segs},
+//     {'S', 5, 5, S_segs}, {'T', 2, 5, T_segs}, {'U', 3, 5, U_segs},
+//     {'V', 1, 5, V_segs}, {'W', 2, 5, W_segs}, {'X', 2, 5, X_segs},
+//     {'Y', 2, 5, Y_segs}, {'Z', 3, 5, Z_segs}
+// };
+
+// // Lookup function
+// Glyph_Bez *get_glyph_Bez(char c) {
+//     // Accept uppercase letters; if lowercase supplied, convert
+//     if (c >= 'a' && c <= 'z') c -= 32;
+//     for (uint8_t i = 0; i < sizeof(bezier_font) / sizeof(Glyph_Bez); i++) {
+//         if (bezier_font[i].c == c)
+//             return &bezier_font[i];
+//     }
+//     return NULL; // not found
+// }
+
+// NOTE: This file contains only glyph definitions. Use your existing GLCD drawing
+// routines and quadratic bezier rasterizer to render the glyphs (each QuadBezier has
+// coords in the GLCD coordinate system: X=0..8, Y=0..9 with 0 at the top).
+*/
+
+QuadBezier B_segs[] = {
+    {0,0, 0,0, 0,7},    // Left vertical
+    {0,0, 5,0, 5,0},    // Top curve
+    {0,3, 5,3, 5,3},    // Middle curve
+    {0,7, 5,7, 5,7},    // Bottom curve
+    {5,0, 5,3, 5,7}     // Right vertical
+};
+
+
+Glyph_Bez font[] = {
+ 'B', 5, 5, B_segs
+};
 
 Glyph_Bez *get_glyph_BezGlyph(char c) {
-    for (uint8_t i = 0; i < sizeof(bezier_font) / sizeof(Glyph_Bez); i++) {
-        if (bezier_font[i].c == c)
-            return &bezier_font[i];
+    // Match exact or uppercase of lowercase input
+    for (uint8_t i = 0; i < sizeof(font) / sizeof(Glyph_Bez); i++) {
+        if (font[i].c == c || font[i].c == (c - 32))
+            return &font[i];
     }
-    return NULL;
+    return NULL; // Character not supported
 }
 
+// NOTE: draw/berzier/bezier functions are expected to exist elsewhere in your project.
+// Keep your existing draw_text_bezier() / Berzier_DrawChar() implementations—this file only
+// replaces the segment definitions with cleaner shapes.
+
 // Draw text string
-void draw_text_bezier(char *str, int16_t x, int16_t y, uint8_t scale) {
+void draw_text_bezier(char *str, int16_t x, int16_t y, uint8_t scale, uint8_t deph) {
     while (*str) {
         Glyph_Bez *g = get_glyph_BezGlyph(*str++);
         if (!g)
             return;
 
         Bezier line = {.step = 30};
+        for (uint8_t j = 0; j < deph; j++) {
+            for (uint8_t i = 0; i < g->seg_count; i++) {
 
-        for (uint8_t i = 0; i < g->seg_count; i++) {
+                line.x0 = (j + x + g->segs[i].x0 * scale);
+                line.x1 = (j + x + g->segs[i].cx * scale);
+                line.x2 = (j + x + g->segs[i].x1 * scale);
 
-            line.x0 = (x + g->segs[i].x0 * scale);
-            line.x1 = (x + g->segs[i].x1 * scale);
-            line.x2 = (x + g->segs[i].x2 * scale);
+                line.y0 = (y + g->segs[i].y0 * scale);
+                line.y1 = (y + g->segs[i].cy * scale);
+                line.y2 = (y + g->segs[i].y1 * scale);
 
-            line.y0 = (y + g->segs[i].y0 * scale);
-            line.y1 = (y + g->segs[i].y1 * scale);
-            line.y2 = (y + g->segs[i].y2 * scale);
-
-            bezier(&line);
-
-            // bezier_quad_int((x + seg.x0 * scale), y + seg.y0 * scale, x + seg.x1 * scale,
-            //                 y + seg.y1 * scale, x + seg.x2 * scale, y + seg.y2 * scale);
+                bezier(&line);
+            }
         }
-        x += g->width * scale + 2; // Advance cursor
+        x += g->width * scale + 5; // Advance cursor
     }
 }
 
-// Example: Draw "HELLO 123!" at (10,20) with 2x scale
+void Berzier_DrawChar(char c, uint8_t x, uint8_t y, uint8_t scale, uint8_t deph) {
+    if (get_glyph_BezGlyph(c)) {
+        Glyph_Bez *g = get_glyph_BezGlyph(c);
+
+        Bezier line;
+        line.step = 10;
+
+        for (uint8_t j = 0; j < deph; j++) {
+
+        for (uint8_t i = 0; i < g->seg_count; i++) {
+
+            line.x0 = (j + x + g->segs[i].x0 * scale);
+                line.x1 = (j + x + g->segs[i].cx * scale);
+                line.x2 = (j + x + g->segs[i].x1 * scale);
+
+                line.y0 = (y + g->segs[i].y0 * scale);
+                line.y1 = (y + g->segs[i].cy * scale);
+                line.y2 = (y + g->segs[i].y1 * scale);
+
+            bezier(&line);
+        }
+        }
+    }
+}

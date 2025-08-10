@@ -8,7 +8,7 @@
 #include <wchar.h>
 
 #define WIDTH 128
-#define HEIGHT 64
+#define HEIGHT 128
 #define BufferSize ((WIDTH * HEIGHT) >> 3)
 
 typedef struct {
@@ -28,7 +28,7 @@ typedef struct {
 
 char Buffer[] = {};
 
-char Mario[] = {
+char Mario[]  = {
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -116,7 +116,9 @@ void Print(char *Buffer) {
                 // printf("1");
 
                 else
-                    wprintf(L"□");
+                    wprintf(L" ");
+                // wprintf(L"□");
+
                 // printf("0");
                 // wprintf(L" ");
             }
@@ -168,8 +170,8 @@ void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
     int16_t adx = (((x1 >= x0) ? x1 - x0 : x0 - x1) + 1) << 1;
     int16_t ady = (((y1 >= y0) ? y1 - y0 : y0 - y1) + 1) << 1;
 
-    int8_t sx = (x0 < x1) ? 1 : -1;
-    int8_t sy = (y0 < y1) ? 1 : -1;
+    int8_t sx   = (x0 < x1) ? 1 : -1;
+    int8_t sy   = (y0 < y1) ? 1 : -1;
 
     int16_t eps;
 
@@ -228,6 +230,7 @@ void bezier(Bezier *Main) {
     for (Main->t = 0; Main->t <= Main->step; Main->t++) {
         Main->x = bezier_quad_int(Main->x0, Main->x1, Main->x2, Main->t, Main->step);
         Main->y = bezier_quad_int(Main->y0, Main->y1, Main->y2, Main->t, Main->step);
+        SetPixel(Main->x, Main->y, 0x01, Buffer);
     }
 }
 

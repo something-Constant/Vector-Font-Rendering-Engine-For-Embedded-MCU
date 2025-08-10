@@ -3,7 +3,7 @@
 #define space 4
 
 typedef struct {
-    int8_t x1, y1, x2, y2;
+    const int8_t x1, y1, x2, y2;
 } LineSegment;
 
 // Glyph metadata
@@ -345,7 +345,8 @@ static LineSegment _quest[] = {
 };
 
 static LineSegment _period[] = {
-    {4, 8, 4, 9}
+    {3, 6, 6, 6},
+    {3, 7, 6, 7}
 };
 static LineSegment _comma[] = {
     {4, 7, 4, 8},
@@ -361,64 +362,126 @@ static LineSegment _semicolon[] = {
     {4, 8, 4, 9}
 };
 
+static LineSegment _percent[] = {
+    {0, 9, 2, 9},
+    {0, 7, 2, 7}, // top left "circle"
+    {7, 2, 9, 2},
+    {7, 0, 9, 0}, // bottom right "circle"
+    {0, 0, 9, 9}  // slash
+};
+
+static LineSegment _minus[] = {
+    {0, 5, 9, 5}
+};
+
+static LineSegment _equal[] = {
+    {0, 3, 9, 3},
+    {0, 6, 9, 6}
+};
+
+static LineSegment _slash[] = {
+    {0, 0, 9, 9}
+};
+
+static LineSegment _underscore[] = {
+    {0, 9, 9, 9}
+};
+
+static LineSegment _lparen[] = {
+    {6, 0, 4, 2},
+    {4, 2, 4, 7},
+    {4, 7, 6, 9}
+};
+
+static LineSegment _rparen[] = {
+    {3, 0, 5, 2},
+    {5, 2, 5, 7},
+    {5, 7, 3, 9}
+};
+
+static LineSegment _asterisk[] = {
+    {0, 5, 9, 5},
+    {4, 0, 4, 9},
+    {0, 0, 9, 9},
+    {0, 9, 9, 0}
+};
+
+static LineSegment _plus[] = {
+    {5, 0, 5, 9},
+    {0, 5, 9, 5}
+};
+
 // ======================
 // FONT LOOKUP TABLE
 // ======================
 
 static Glyph_Line font_table[] = {
     // Letters A-Z
-    {'A', 10, 10, 3,  A_seg     },
-    {'B', 10, 10, 10, B_seg     },
-    {'C', 10, 10, 7,  C_seg     },
-    {'D', 10, 10, 6,  D_seg     },
-    {'E', 10, 10, 4,  E_seg     },
-    {'F', 10, 10, 3,  F_seg     },
-    {'G', 10, 10, 9,  G_seg     },
-    {'H', 10, 10, 3,  H_seg     },
-    {'I', 10, 10, 3,  I_seg     },
-    {'J', 10, 10, 4,  J_seg     },
-    {'K', 10, 10, 3,  K_seg     },
-    {'L', 10, 10, 2,  L_seg     },
-    {'M', 10, 10, 4,  M_seg     },
-    {'N', 10, 10, 3,  N_seg     },
-    {'O', 10, 10, 8,  O_seg     },
-    {'P', 10, 10, 5,  P_seg     },
-    {'Q', 10, 10, 9,  Q_seg     },
-    {'R', 10, 10, 6,  R_seg     },
-    {'S', 10, 10, 11, S_seg     },
-    {'T', 10, 10, 2,  T_seg     },
-    {'U', 10, 10, 5,  U_seg     },
-    {'V', 10, 10, 2,  V_seg     },
-    {'W', 10, 10, 4,  W_seg     },
-    {'X', 10, 10, 2,  X_seg     },
-    {'Y', 10, 10, 3,  Y_seg     },
-    {'Z', 10, 10, 3,  Z_seg     },
+    {'A', 10, 10, 3,  A_seg      },
+    {'B', 10, 10, 10, B_seg      },
+    {'C', 10, 10, 7,  C_seg      },
+    {'D', 10, 10, 6,  D_seg      },
+    {'E', 10, 10, 4,  E_seg      },
+    {'F', 10, 10, 3,  F_seg      },
+    {'G', 10, 10, 9,  G_seg      },
+    {'H', 10, 10, 3,  H_seg      },
+    {'I', 10, 10, 3,  I_seg      },
+    {'J', 10, 10, 4,  J_seg      },
+    {'K', 10, 10, 3,  K_seg      },
+    {'L', 10, 10, 2,  L_seg      },
+    {'M', 10, 10, 4,  M_seg      },
+    {'N', 10, 10, 3,  N_seg      },
+    {'O', 10, 10, 8,  O_seg      },
+    {'P', 10, 10, 5,  P_seg      },
+    {'Q', 10, 10, 9,  Q_seg      },
+    {'R', 10, 10, 6,  R_seg      },
+    {'S', 10, 10, 11, S_seg      },
+    {'T', 10, 10, 2,  T_seg      },
+    {'U', 10, 10, 5,  U_seg      },
+    {'V', 10, 10, 2,  V_seg      },
+    {'W', 10, 10, 4,  W_seg      },
+    {'X', 10, 10, 2,  X_seg      },
+    {'Y', 10, 10, 3,  Y_seg      },
+    {'Z', 10, 10, 3,  Z_seg      },
 
     // Digits 0-9
-    {'0', 10, 10, 8,  _0_seg    },
-    {'1', 10, 10, 3,  _1_seg    },
-    {'2', 10, 10, 6,  _2_seg    },
-    {'3', 10, 10, 10, _3_seg    },
-    {'4', 10, 10, 3,  _4_seg    },
-    {'5', 10, 10, 8,  _5_seg    },
-    {'6', 10, 10, 10, _6_seg    },
-    {'7', 10, 10, 2,  _7_seg    },
-    {'8', 10, 10, 16, _8_seg    },
-    {'9', 10, 10, 9,  _9_seg    },
+    {'0', 10, 10, 8,  _0_seg     },
+    {'1', 10, 10, 3,  _1_seg     },
+    {'2', 10, 10, 6,  _2_seg     },
+    {'3', 10, 10, 10, _3_seg     },
+    {'4', 10, 10, 3,  _4_seg     },
+    {'5', 10, 10, 8,  _5_seg     },
+    {'6', 10, 10, 10, _6_seg     },
+    {'7', 10, 10, 2,  _7_seg     },
+    {'8', 10, 10, 16, _8_seg     },
+    {'9', 10, 10, 9,  _9_seg     },
 
     // Symbols
-    {'!', 6,  10, 5,  _excl     },
-    {'?', 10, 10, 7,  _quest    },
-    {'.', 2,  10, 1,  _period   },
-    {',', 4,  10, 2,  _comma    },
-    {':', 2,  10, 2,  _colon    },
-    {';', 4,  10, 3,  _semicolon}
+    {'!', 10, 10, 5,  _excl      },
+    {'?', 10, 10, 7,  _quest     },
+    {'.', 10, 10, 2,  _period    },
+    {',', 10, 10, 2,  _comma     },
+    {':', 10, 10, 2,  _colon     },
+    {';', 10, 10, 3,  _semicolon },
+    {'%', 10, 10, 5,  _percent   },
+    {'-', 10, 10, 1,  _minus     },
+    {'=', 10, 10, 2,  _equal     },
+    {'/', 10, 10, 1,  _slash     },
+    {'_', 10, 10, 1,  _underscore},
+    {'(', 10, 10, 3,  _lparen    },
+    {')', 10, 10, 3,  _rparen    },
+    {'*', 10, 10, 4,  _asterisk  },
+    {'+', 10, 10, 2,  _plus      }
 };
 
-Glyph_Line *get_glyph_Line(char c) {
+Glyph_Line *get_glyph_Line(uint8_t c) {
+    if (c == '_')
+        return &font_table[46];
+
     for (uint8_t i = 0; i < sizeof(font_table) / sizeof(Glyph_Line); i++)
         if (font_table[i].c == c || font_table[i].c == (c - 32))
             return &font_table[i];
+
     return NULL; // Character not supported
 }
 
