@@ -24,38 +24,38 @@ as that is all that is required to write something on a screen.
 
 # Gallery
   ### **CDM simulation test**
-  <img width="701" height="742" alt="image" src="https://github.com/user-attachments/assets/8cb3b126-5a16-4a5f-b7a3-5c541a722799" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/8cb3b126-5a16-4a5f-b7a3-5c541a722799" />
   
   ### **CDM Font scaling**
-  <img width="1036" height="646" alt="image" src="https://github.com/user-attachments/assets/08770fd0-ac5c-49c2-800b-dff9cf5aa662" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/08770fd0-ac5c-49c2-800b-dff9cf5aa662" />
     
   ### **CDM Bezier curve**
-  <img width="695" height="728" alt="image" src="https://github.com/user-attachments/assets/0f58d14a-440a-4c2c-8102-67825537c5a5" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/0f58d14a-440a-4c2c-8102-67825537c5a5" />
 
   ### **SDL Bezier curve**
-  <img width="882" height="940" alt="image" src="https://github.com/user-attachments/assets/8efdbb7c-f8a8-493b-b7dd-e1931a9279ab" />
-  <img width="902" height="507" alt="image" src="https://github.com/user-attachments/assets/cd2b8d4a-464f-4258-87e9-e8b1c57ad2ce" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/8efdbb7c-f8a8-493b-b7dd-e1931a9279ab" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/cd2b8d4a-464f-4258-87e9-e8b1c57ad2ce" />
 
   ### **ssd1306 Bezier curve**
-  ![photo_5_2025-08-13_13-05-53](https://github.com/user-attachments/assets/52794e61-89f0-4667-abf5-6aa433c0696a)
-  ![photo_6_2025-08-13_13-05-53](https://github.com/user-attachments/assets/6894ba80-0f14-4363-a7bf-7527a8a5246c)
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/52794e61-89f0-4667-abf5-6aa433c0696a" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/6894ba80-0f14-4363-a7bf-7527a8a5246c" />
 
   ### **ssd1306 font**
-  ![photo_4_2025-08-13_13-05-53](https://github.com/user-attachments/assets/d6dd21a1-c43a-487e-bbec-503d377ede2b)
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/d6dd21a1-c43a-487e-bbec-503d377ede2b" />
     
   ### **ssd1306 font scaling**
-  ![photo_1_2025-08-13_13-05-53](https://github.com/user-attachments/assets/41af0e4d-3b1c-4f26-aeb7-9b72a93d64ee)
-  ![photo_2_2025-08-13_13-05-53](https://github.com/user-attachments/assets/c3110446-16e1-4823-bf44-d784eba0f7cd)
-  ![photo_3_2025-08-13_13-05-53](https://github.com/user-attachments/assets/f8c1d9c8-15f9-4c1f-9b9b-35431ef099c0)
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/41af0e4d-3b1c-4f26-aeb7-9b72a93d64ee" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/c3110446-16e1-4823-bf44-d784eba0f7cd" />
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/f8c1d9c8-15f9-4c1f-9b9b-35431ef099c0" />
   
 
-  **ssd1306 Test Application**
-    ![doc_2025-08-13_14-23](https://github.com/user-attachments/assets/f86a1424-398b-4f80-8a33-f7581078538e)
+  ### **ssd1306 Test Application**
+  <img width="480" height="369" alt="image" src="https://github.com/user-attachments/assets/f86a1424-398b-4f80-8a33-f7581078538e" />
 
   # Developed By
-  - Mohamad Hosein Meymandy
-    -[Email](mohamadmeymandi82@gmail.com)
-    -[Telegram](https://t.me/mohamad_electro)
+  - Mohamad Hoseyn Meymandi
+    - [Email](mohamadmeymandi82@gmail.com)
+    - [Telegram](https://t.me/mohamad_electro)
        
 
       
