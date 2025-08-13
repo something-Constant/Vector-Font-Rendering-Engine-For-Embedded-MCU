@@ -54,7 +54,7 @@ as that is all that is required to write something on a screen.
 
   # Developed By
   - Mohamad Hoseyn Meymandi
-    - [Email](mohamadmeymandi82@gmail.com)
+    - [Email](https://mail.google.com/mail/?view=cm%to=mohamadmeymandi82@gmail.com)
     - [Telegram](https://t.me/mohamad_electro)
        
 
