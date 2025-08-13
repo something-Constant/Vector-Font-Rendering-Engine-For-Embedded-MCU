@@ -11,7 +11,8 @@ as that is all that is required to write something on a screen.
   - The numeric data type is integer by default
   - Flexibility
     - variable size
-    - variable depth   
+    - variable depth
+  - support for runtime scaling of fonts 
 
 # File Index
   - PC LCD Simulation/GraphicLCDSimulation.c - Graphics Display Unit Tests in CMD.
