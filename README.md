@@ -1,4 +1,4 @@
-## ***Vector Font Rendering Engine For Embedded MCU***
+# ***lightweight C Vector Font Rendering Engine For Embedded MCU***
 # Overview
 I decided to write the Vector Font because I needed a font with different sizes and optimized for a microcontroller, and there wasn't any clear library that had this feature.
 In starting this, I have had to write a library for myself, and this repo was born. Currently, it only supports upper-case ASCII, numbers, and some of the necessary symbols, 
