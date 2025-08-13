@@ -10,8 +10,8 @@ as that is all that is required to write something on a screen.
   - All development is in the 'C' programming language.
   - The numeric data type is integer by default
   - Flexibility
-    -size
-    -depth   
+    - variable size
+    - variable depth   
 
 # File Index
   - PC LCD Simulation/GraphicLCDSimulation.c - Graphics Display Unit Tests in CMD.
