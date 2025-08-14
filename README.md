@@ -12,16 +12,23 @@ as that is all that is required to write something on a screen.
   - Flexibility
     - variable size
     - variable depth
-  - support for runtime scaling of fonts 
+  - support for runtime scaling of fonts
+  - quadratic bezier curve
 
 # File Index
+  *PC LCD Simulation:*
   - PC LCD Simulation/GraphicLCDSimulation.c - Graphics Display Unit Tests in CMD.
   - PC LCD Simulation/SDL_Simulation.c - Graphics Display Unit Tests in SDL.
+  - PC LCD Simulation/beziercurve.h - quadratic bezier curve.
+
+  *Embedded MCU Execution:*
   - Embedded MCU Execution/Inc/Font/font_10x10.h - Vector Font.
   - Embedded MCU Execution/Inc/Font/font_render_engine.h - Vector Font Rendering Engine.
+  - Embedded MCU Execution/Inc/beziercurve.h - quadratic bezier curve.
   - Embedded MCU Execution/Inc/ssd1306/ssd1306.h - ssd1306 header Library using I2C.
   - Embedded MCU Execution/Inc/ssd1306/ssd1306.h - ssd1306 source Library using I2C.
   - Embedded MCU Execution/Src/main.c - Test Application using HAL library for STM32F1XX.
+  
 
 # Gallery
   ### **CDM simulation test**
