@@ -67,14 +67,7 @@ class Window:
         self.OutPutTextbox.place(
             anchor="nw", relx=0.015, rely=0.08, relwidth=0.32, relheight=0.5
         )
-
-        # OutFrame = CTkScrollableFrame(OutPutFrame, corner_radius=5, label_text="OutPut")
-        # OutFrame.place(
-        #     anchor="nw", relx=0.015, rely=0.015, relwidth=0.32, relheight=0.57
-        # )
-
-        # self.OutPutLabel = CTkTextbox(OutFrame)
-        # self.OutPutLabel.pack(expand=True, fill="both")
+        self.OutPutTextbox.configure(state="disabled")
 
         ##########
         self.canvas = Canvas(canvasFrame, bg=self.OffColor)
@@ -94,8 +87,9 @@ class Window:
         self.lineflag = 0
         self.update_winfo()
         self.cordpoint.clear()
-        self.OutPutTextbox.delete("0.0", "end")
         self.OutPutTextbox.configure(state="normal")
+        self.OutPutTextbox.delete("0.0", "end")
+        self.OutPutTextbox.configure(state="disabled")
 
     def update_winfo(self, event="<Configure>", resize=True):
         if resize == True:
@@ -180,20 +174,20 @@ class Window:
 
     def print_line_cord(self):
         self.DrawLine(self.x0, self.y0, self.x1, self.y1)
-        self.cordpoint.append(f"{{{self.x0}, {self.y0}, {self.x1}, {self.y1}}}")
+        self.cordpoint.append(f"{{{self.x0}, {self.y0}, {self.x1}, {self.y1}}},")
 
     def print_cord(self):
         if self.lineflag == 0:
+            self.cordpoint[len(self.cordpoint) - 1] = self.cordpoint[len(self.cordpoint) - 1].replace(",", " ")
 
             self.OutPutTextbox.configure(state="normal")
 
             for i in reversed(self.cordpoint):
-                self.OutPutTextbox.insert("0.0", i + ",\n")
+                self.OutPutTextbox.insert("0.0", i + "\n")
 
             self.OutPutTextbox.configure(state="disabled")
 
         else:
-            pass
             messagebox.showwarning(
                 title="Line Warning", message="last line just has one point"
             )
