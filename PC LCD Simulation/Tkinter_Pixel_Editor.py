@@ -2,6 +2,7 @@ from customtkinter import *
 from tkinter import Canvas
 from serial import *
 import json
+import math
 
 
 class Window:
@@ -25,6 +26,13 @@ class Window:
         self.cord_text = None
         self.pixel = None
 
+        self.x0 = None
+        self.y0 = None
+        self.x1 = None
+        self.y1 = None
+        self.lineflag = 0
+        self.cordpoint = []
+
         canvasFrame = CTkFrame(self.root, corner_radius=5)
         canvasFrame.place(anchor="nw", relx=0.0, rely=0.0, relwidth=1, relheight=1)
 
@@ -33,11 +41,32 @@ class Window:
             anchor="nw", relx=0.65, rely=0.0, relwidth=1, relheight=1
         )
 
-        ControlFrame = CTkFrame(MainControlFrame, corner_radius=5, fg_color="red")
+        ControlFrame = CTkFrame(MainControlFrame, corner_radius=5)
         ControlFrame.place(anchor="nw", relx=0.0, rely=0.0, relwidth=1, relheight=1)
 
-        OutPutFrame = CTkFrame(MainControlFrame, corner_radius=5, fg_color="blue")
-        OutPutFrame.place(anchor="nw", relx=0.0, rely=0.6, relwidth=1, relheight=1)
+        ClearButton = CTkButton(ControlFrame, text="Clear", command=self.clear_output)
+        ClearButton.place(
+            anchor="nw", relx=0.03, rely=0.05, relwidth=0.3, relheight=0.1
+        )
+
+        OutputButton = CTkButton(
+            ControlFrame, text="print line cord", command=self.print_cord
+        )
+        OutputButton.place(
+            anchor="nw", relx=0.03, rely=0.25, relwidth=0.3, relheight=0.1
+        )
+
+        ##########
+        OutPutFrame = CTkFrame(MainControlFrame, corner_radius=5, fg_color="gray")
+        OutPutFrame.place(anchor="nw", relx=0.0, rely=0.4, relwidth=1, relheight=1)
+
+        OutFrame = CTkScrollableFrame(OutPutFrame, corner_radius=5)
+        OutFrame.place(anchor="nw", relx=0.03, rely=0.05, relwidth=0.3, relheight=0.5)
+
+        self.OutPutLabel = CTkLabel(OutPutFrame)
+        self.OutPutLabel.place(
+            anchor="nw", relx=0.05, rely=0.05, relwidth=0.25, relheight=0.5
+        )
 
         self.canvas = Canvas(canvasFrame, bg=self.OffColor)
         self.canvas.place(
@@ -47,9 +76,15 @@ class Window:
         self.canvas.bind("<Motion>", self.DrawCord)
         self.canvas.bind("<Configure>", self.update_winfo)
         self.canvas.bind("<Button-1>", self.pixel_set)
-        self.canvas.bind("<Button-3>", self.pixel_reset)
+        self.canvas.bind("<B3-Motion>", self.pixel_reset)
 
         self.root.mainloop()
+
+    def clear_output(self):
+        self.canvas.delete("all")
+        self.lineflag = 0
+        self.update_winfo()
+        self.cordpoint.clear()
 
     def update_winfo(self, event="<Configure>", resize=True):
         if resize == True:
@@ -60,23 +95,56 @@ class Window:
         self.PixelWidth = int(self.canvas.winfo_width() / self.Width)
         self.PixelHeight = int(self.canvas.winfo_height() / self.Height)
 
-        for c in range(1, self.Width, 1):
+        for c in range(self.PixelWidth, self.GridWidth, self.PixelWidth):
             self.canvas.create_line(
-                (c * self.PixelWidth),
+                c,
                 0,
-                (c * self.PixelWidth),
+                c,
                 self.GridHeight,
                 fill="white",
             )
 
-        for r in range(1, self.Height, 1):
+        for r in range(self.PixelHeight, self.GridHeight, self.PixelHeight):
             self.canvas.create_line(
                 0,
-                (r * self.PixelHeight),
+                r,
                 self.GridWidth,
-                (r * self.PixelHeight),
+                r,
                 fill="white",
             )
+
+    def DrawLine(self, x0, y0, x1, y1):
+
+        dx = x1 - x0
+        dy = y1 - y0
+        x_inc = 0
+        y_inc = 0
+
+        steps = int(max(abs(dx), abs(dy)))  # number of steps needed
+
+        if steps == 0:
+            return
+
+        if dx != 0 and steps != 0:
+            x_inc = dx / steps
+        if dy != 0 and steps != 0:
+            y_inc = dy / steps
+
+        x, y = x0, y0
+        for _ in range(steps + 1):
+            X = int(x)
+            Y = int(y)
+
+            self.pixel = self.canvas.create_rectangle(
+                (self.PixelWidth * X),
+                (self.PixelHeight * Y),
+                ((self.PixelWidth * X) + self.PixelWidth),
+                ((self.PixelHeight * Y) + self.PixelHeight),
+                fill=self.OnColor,
+            )
+
+            x += x_inc
+            y += y_inc
 
     def DrawCord(self, event="<Motion>"):
         self.canvas.delete(self.cord_text)
@@ -96,27 +164,70 @@ class Window:
             font=("Courier", 20, "bold"),
             fill="white",
         )
-        self.update_winfo(resize=False)
+
+        # self.update_winfo(resize=False)
+
+    def print_line_cord(self):
+        self.DrawLine(self.x0, self.y0, self.x1, self.y1)
+        self.cordpoint.append(f"{self.x0, self.y0, self.x1, self.y1}")
+
+    def print_cord(self):
+
+        print(self.cordpoint)
+        for i in self.cordpoint:
+            self.OutPutLabel.configure(text=i)
+            print(i.replace("(", "{").replace(")", "}") + ",")
 
     def pixel_set(self, event):
 
-        self.GridWidth = self.canvas.winfo_width()
-        self.GridHeight = self.canvas.winfo_height()
-        self.PixelWidth = int(self.canvas.winfo_width() / self.Width)
-        self.PixelHeight = int(self.canvas.winfo_height() / self.Height)
+        if self.lineflag == 0:
 
-        X = int(event.x / self.PixelWidth)
-        Y = int(event.y / self.PixelHeight)
+            self.GridWidth = self.canvas.winfo_width()
+            self.GridHeight = self.canvas.winfo_height()
+            self.PixelWidth = int(self.canvas.winfo_width() / self.Width)
+            self.PixelHeight = int(self.canvas.winfo_height() / self.Height)
 
-        self.pixel = self.canvas.create_rectangle(
-            (self.PixelWidth * X),
-            (self.PixelHeight * Y),
-            ((self.PixelWidth * X) + self.PixelWidth),
-            ((self.PixelHeight * Y) + self.PixelHeight),
-            fill=self.OnColor,
-        )
+            X = int(event.x / self.PixelWidth)
+            Y = int(event.y / self.PixelHeight)
 
-        self.update_winfo(resize=False)
+            self.pixel = self.canvas.create_rectangle(
+                (self.PixelWidth * X),
+                (self.PixelHeight * Y),
+                ((self.PixelWidth * X) + self.PixelWidth),
+                ((self.PixelHeight * Y) + self.PixelHeight),
+                fill=self.OnColor,
+            )
+            self.x0 = X
+            self.y0 = Y
+            self.lineflag = 1
+            self.update_winfo(resize=False)
+            return
+
+        if self.lineflag == 1:
+
+            self.GridWidth = self.canvas.winfo_width()
+            self.GridHeight = self.canvas.winfo_height()
+            self.PixelWidth = int(self.canvas.winfo_width() / self.Width)
+            self.PixelHeight = int(self.canvas.winfo_height() / self.Height)
+
+            X = int(event.x / self.PixelWidth)
+            Y = int(event.y / self.PixelHeight)
+
+            self.pixel = self.canvas.create_rectangle(
+                (self.PixelWidth * X),
+                (self.PixelHeight * Y),
+                ((self.PixelWidth * X) + self.PixelWidth),
+                ((self.PixelHeight * Y) + self.PixelHeight),
+                fill=self.OnColor,
+            )
+
+            self.x1 = X
+            self.y1 = Y
+
+            self.lineflag = 0
+            self.print_line_cord()
+            self.update_winfo(resize=False)
+            return
 
     def pixel_reset(self, event):
 
@@ -135,6 +246,8 @@ class Window:
             ((self.PixelHeight * Y) + self.PixelHeight),
             fill=self.OffColor,
         )
+        self.lineflag = 0
+
         self.update_winfo(resize=False)
 
 

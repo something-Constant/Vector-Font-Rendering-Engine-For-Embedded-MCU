@@ -1,6 +1,13 @@
-*
+/*
+
 !.gitignore
 !LICENSE
 !README.md
+
 !PC LCD Simulation
 !Embdded MCU Execution
+!Tkinter_Pixel_Editor.py
+
+5x5_fontrender.h
+import tkinter as tk.py
+tempCodeRunnerFile.*
