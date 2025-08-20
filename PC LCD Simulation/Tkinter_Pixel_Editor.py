@@ -1,12 +1,11 @@
 from customtkinter import *
-from tkinter import Canvas
-from serial import *
-import json
-import math
+from tkinter import Canvas, messagebox, font
 
 
 class Window:
     def __init__(self, Width=5, Height=7):
+        set_default_color_theme("dark-blue")
+
         self.root = CTk()
         self.root.geometry("600x500")
         self.root.title("pixel Editor")
@@ -56,18 +55,28 @@ class Window:
             anchor="nw", relx=0.03, rely=0.25, relwidth=0.3, relheight=0.1
         )
 
-        ##########
         OutPutFrame = CTkFrame(MainControlFrame, corner_radius=5, fg_color="gray")
         OutPutFrame.place(anchor="nw", relx=0.0, rely=0.4, relwidth=1, relheight=1)
 
-        OutFrame = CTkScrollableFrame(OutPutFrame, corner_radius=5)
-        OutFrame.place(anchor="nw", relx=0.03, rely=0.05, relwidth=0.3, relheight=0.5)
+        OutPutLabel = CTkLabel(
+            OutPutFrame, text="OutPut", text_color="black", font=("Courier", 20, "bold")
+        )
+        OutPutLabel.place(anchor="nw", relx=0.03, rely=0, relwidth=0.3, relheight=0.1)
 
-        self.OutPutLabel = CTkLabel(OutPutFrame)
-        self.OutPutLabel.place(
-            anchor="nw", relx=0.05, rely=0.05, relwidth=0.25, relheight=0.5
+        self.OutPutTextbox = CTkTextbox(OutPutFrame)
+        self.OutPutTextbox.place(
+            anchor="nw", relx=0.015, rely=0.08, relwidth=0.32, relheight=0.5
         )
 
+        # OutFrame = CTkScrollableFrame(OutPutFrame, corner_radius=5, label_text="OutPut")
+        # OutFrame.place(
+        #     anchor="nw", relx=0.015, rely=0.015, relwidth=0.32, relheight=0.57
+        # )
+
+        # self.OutPutLabel = CTkTextbox(OutFrame)
+        # self.OutPutLabel.pack(expand=True, fill="both")
+
+        ##########
         self.canvas = Canvas(canvasFrame, bg=self.OffColor)
         self.canvas.place(
             anchor="nw", relx=0.05, rely=0.1, relwidth=0.55, relheight=0.8
@@ -85,6 +94,8 @@ class Window:
         self.lineflag = 0
         self.update_winfo()
         self.cordpoint.clear()
+        self.OutPutTextbox.delete("0.0", "end")
+        self.OutPutTextbox.configure(state="normal")
 
     def update_winfo(self, event="<Configure>", resize=True):
         if resize == True:
@@ -169,14 +180,23 @@ class Window:
 
     def print_line_cord(self):
         self.DrawLine(self.x0, self.y0, self.x1, self.y1)
-        self.cordpoint.append(f"{self.x0, self.y0, self.x1, self.y1}")
+        self.cordpoint.append(f"{{{self.x0}, {self.y0}, {self.x1}, {self.y1}}}")
 
     def print_cord(self):
+        if self.lineflag == 0:
 
-        print(self.cordpoint)
-        for i in self.cordpoint:
-            self.OutPutLabel.configure(text=i)
-            print(i.replace("(", "{").replace(")", "}") + ",")
+            self.OutPutTextbox.configure(state="normal")
+
+            for i in reversed(self.cordpoint):
+                self.OutPutTextbox.insert("0.0", i + ",\n")
+
+            self.OutPutTextbox.configure(state="disabled")
+
+        else:
+            pass
+            messagebox.showwarning(
+                title="Line Warning", message="last line just has one point"
+            )
 
     def pixel_set(self, event):
 
