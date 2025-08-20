@@ -3,6 +3,7 @@ from tkinter import Canvas, messagebox, font
 
 
 class Window:
+
     def __init__(self, Width=5, Height=7):
         set_default_color_theme("dark-blue")
 
