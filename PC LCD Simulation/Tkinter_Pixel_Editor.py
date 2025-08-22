@@ -1,5 +1,7 @@
 from customtkinter import *
 from tkinter import Canvas, messagebox, font
+import secrets
+import random
 
 
 class Window:
@@ -13,6 +15,7 @@ class Window:
 
         self.OffColor = "#545454"
         self.OnColor = "black"
+        self.randcolor = "#" + secrets.token_hex(3)
 
         self.Width = Width
         self.Height = Height
@@ -79,22 +82,27 @@ class Window:
         self.canvas.bind("<Motion>", self.DrawCord)
         self.canvas.bind("<Configure>", self.update_winfo)
         self.canvas.bind("<Button-1>", self.pixel_set)
-        self.canvas.bind("<B3-Motion>", self.pixel_reset)
+        self.canvas.bind("<Button-3>", self.pixel_reset)
 
         self.root.mainloop()
 
     def clear_output(self):
         self.canvas.delete("all")
         self.lineflag = 0
-        self.update_winfo()
         self.cordpoint.clear()
         self.OutPutTextbox.configure(state="normal")
         self.OutPutTextbox.delete("0.0", "end")
         self.OutPutTextbox.configure(state="disabled")
+        self.update_winfo()
 
     def update_winfo(self, event="<Configure>", resize=True):
         if resize == True:
             self.canvas.delete("all")
+            self.lineflag = 0
+            self.cordpoint.clear()
+            self.OutPutTextbox.configure(state="normal")
+            self.OutPutTextbox.delete("0.0", "end")
+            self.OutPutTextbox.configure(state="disabled")
 
         self.GridWidth = self.canvas.winfo_width()
         self.GridHeight = self.canvas.winfo_height()
@@ -119,14 +127,14 @@ class Window:
                 fill="white",
             )
 
-    def DrawLine(self, x0, y0, x1, y1):
-
+    def DrawLine(self, x0, y0, x1, y1, state=True):
+        self.randcolor = "#" + secrets.token_hex(3)
         dx = x1 - x0
         dy = y1 - y0
         x_inc = 0
         y_inc = 0
 
-        steps = int(max(abs(dx), abs(dy)))  # number of steps needed
+        steps = max(abs(dx), abs(dy))  # number of steps needed
 
         if steps == 0:
             return
@@ -138,16 +146,26 @@ class Window:
 
         x, y = x0, y0
         for _ in range(steps + 1):
-            X = int(x)
-            Y = int(y)
 
-            self.pixel = self.canvas.create_rectangle(
-                (self.PixelWidth * X),
-                (self.PixelHeight * Y),
-                ((self.PixelWidth * X) + self.PixelWidth),
-                ((self.PixelHeight * Y) + self.PixelHeight),
-                fill=self.OnColor,
-            )
+            X = round(x)
+            Y = round(y)
+
+            if state:
+                self.pixel = self.canvas.create_rectangle(
+                    (self.PixelWidth * X),
+                    (self.PixelHeight * Y),
+                    ((self.PixelWidth * X) + self.PixelWidth),
+                    ((self.PixelHeight * Y) + self.PixelHeight),
+                    fill=self.randcolor,
+                )
+            else:
+                self.pixel = self.canvas.create_rectangle(
+                    (self.PixelWidth * X),
+                    (self.PixelHeight * Y),
+                    ((self.PixelWidth * X) + self.PixelWidth),
+                    ((self.PixelHeight * Y) + self.PixelHeight),
+                    fill=self.OffColor,
+                )
 
             x += x_inc
             y += y_inc
@@ -178,20 +196,31 @@ class Window:
         self.cordpoint.append(f"{{{self.x0}, {self.y0}, {self.x1}, {self.y1}}},")
 
     def print_cord(self):
-        if self.lineflag == 0:
-            self.cordpoint[len(self.cordpoint) - 1] = self.cordpoint[len(self.cordpoint) - 1].replace(",", " ")
+        self.OutPutTextbox.configure(state="normal")
+        self.OutPutTextbox.delete("0.0", "end")
+        self.OutPutTextbox.configure(state="disabled")
 
-            self.OutPutTextbox.configure(state="normal")
+        self.OutPutTextbox.configure(state="normal")
 
-            for i in reversed(self.cordpoint):
-                self.OutPutTextbox.insert("0.0", i + "\n")
+        try:
+            self.update_winfo(resize=False)
+            if self.lineflag == 0:
+                self.cordpoint[len(self.cordpoint) - 1] = self.cordpoint[
+                    len(self.cordpoint) - 1
+                ].replace("},", "}")
 
-            self.OutPutTextbox.configure(state="disabled")
+                for i in reversed(self.cordpoint):
+                    self.OutPutTextbox.insert("0.0", i + "\n")
 
-        else:
-            messagebox.showwarning(
-                title="Line Warning", message="last line just has one point"
-            )
+            else:
+                messagebox.showwarning(
+                    title="Line Warning", message="last line just has one point"
+                )
+
+        except:
+            pass
+
+        self.OutPutTextbox.configure(state="disabled")
 
     def pixel_set(self, event):
 
@@ -251,19 +280,23 @@ class Window:
         self.PixelWidth = int(self.canvas.winfo_width() / self.Width)
         self.PixelHeight = int(self.canvas.winfo_height() / self.Height)
 
+        pcord = len(self.cordpoint)
         X = int(event.x / self.PixelWidth)
         Y = int(event.y / self.PixelHeight)
 
-        self.pixel = self.canvas.create_rectangle(
-            (self.PixelWidth * X),
-            (self.PixelHeight * Y),
-            ((self.PixelWidth * X) + self.PixelWidth),
-            ((self.PixelHeight * Y) + self.PixelHeight),
-            fill=self.OffColor,
-        )
-        self.lineflag = 0
+        for cord in self.cordpoint:
+            if cord[1] == str(X) and cord[4] == str(Y):
+                self.DrawLine(
+                    int(cord[1]), int(cord[4]), int(cord[7]), int(cord[10]), False
+                )
+                self.cordpoint.remove(cord)
+
+        if pcord != len(self.cordpoint):
+            for cord in self.cordpoint:
+                self.DrawLine(int(cord[1]), int(cord[4]), int(cord[7]), int(cord[10]))
 
         self.update_winfo(resize=False)
+        self.lineflag = 0
 
 
 def main():

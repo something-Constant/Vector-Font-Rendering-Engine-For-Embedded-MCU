@@ -1,8 +1,7 @@
 #include "LCD_CMD_Simulation.h"
 // #include "10x10_FontRender.h"
-#include "5x7_FontRender.h"
+#include "Font_5x7/font_render_engine.h"
 // #include "LineFont_5x5x.h"
-
 
 char frame[50] = "frame";
 
@@ -17,7 +16,9 @@ int main() {
     // draw_text_5x5("MNOPQR", 0, 30, 2, 1);
     // draw_text_5x5("FTUVWX", 0, 45, 2, 1);
 
-    draw_text("ABCDE", 0, 0, 3, 1);
+    // GLCD_DrawChar('A', 0, 0, 1, 1);
+
+    draw_text("ABCDE", 0, 0, 1, 1);
     // draw_text("GHIJKLY", 0, 15, 1, 1);
     // draw_text("MNOPQR", 0, 30, 1, 1);
     // draw_text("FTUVWX", 0, 45, 1, 1);
