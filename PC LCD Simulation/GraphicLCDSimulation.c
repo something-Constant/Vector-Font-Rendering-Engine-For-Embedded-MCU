@@ -1,9 +1,12 @@
 #include "LCD_CMD_Simulation.h"
 // #include "10x10_FontRender.h"
-#include "Font_5x7/font_render_engine.h"
-// #include "LineFont_5x5x.h"
+#include "./Font_5x7/font_render_engine.h"
 
+
+uint8_t deph = 1, scale = 1;
 char frame[50] = "frame";
+
+
 
 int main() {
     _setmode(_fileno(stdout), 0x20000);
@@ -11,21 +14,19 @@ int main() {
     for (int i = 0; i < BufferSize; i++)
         Buffer[i] = 0;
 
-    // draw_text_5x5("ABCDEFZ", 0, 0, 2, 1);
-    // draw_text_5x5("GHIJKLY", 0, 15, 2, 1);
-    // draw_text_5x5("MNOPQR", 0, 30, 2, 1);
-    // draw_text_5x5("FTUVWX", 0, 45, 2, 1);
 
-    // GLCD_DrawChar('A', 0, 0, 1, 1);
 
-    draw_text("ABCDE", 0, 0, 1, 1);
-    // draw_text("GHIJKLY", 0, 15, 1, 1);
-    // draw_text("MNOPQR", 0, 30, 1, 1);
-    // draw_text("FTUVWX", 0, 45, 1, 1);
-    // draw_text("01234", 0, 60, 1, 1);
-    // draw_text("56789_", 0, 75, 1, 1);
-    // draw_text("?!:;,.*", 0, 90, 1, 1);
-    // draw_text("+-/=\%()", 0, 105, 1, 1);
+
+    draw_text("ABCDEFGHIJKLMNO", 0, 0, scale, deph);
+    draw_text("PQRSTUVWXYZabcd", 0, 8, scale, deph);
+    draw_text("efghijklmnopqrs", 0, 16, scale, deph);
+    draw_text("tuvwxyz01234567", 0, 24, scale, deph);
+    draw_text("89/[]_^()?!:~,*", 0, 32, scale, deph);
+    draw_text("&%=+-<>\\", 0, 40, scale, deph);
+	GLCD_DrawChar(24, 67, 40, 1, 1);
+	GLCD_DrawChar(25, 75, 40, 1, 1);
+	GLCD_DrawChar(26, 83, 40, 1, 1);
+	GLCD_DrawChar(27, 91, 40, 1, 1);
 
     Print(Buffer);
 

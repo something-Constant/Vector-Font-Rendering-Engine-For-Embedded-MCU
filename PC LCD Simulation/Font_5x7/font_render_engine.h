@@ -22,14 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// #ifndef _FONT_RENDER_ENGINE_H
-// #define _FONT_RENDER_ENGINE_H
+#ifndef _FONT_RENDER_ENGINE_H
+#define _FONT_RENDER_ENGINE_H
 
 #include "5x7_Font.h"
 
-
-
-void drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *buffer) {
+void Fontdrawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *buffer) {
     if ((x0 < WIDTH && x1 < WIDTH) && (y0 < HEIGHT && y1 < HEIGHT)) {
         int16_t adx = (((x1 >= x0) ? x1 - x0 : x0 - x1) + 1) << 1;
         int16_t ady = (((y1 >= y0) ? y1 - y0 : y0 - y1) + 1) << 1;
@@ -43,7 +41,7 @@ void drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *buffer) {
             eps = (ady - adx) >> 1;
 
             for (int16_t x = x0, y = y0; sx < 0 ? x >= x1 : x <= x1; x += sx) {
-                setpixel(x, y, buffer);
+                setpixel(x, y, Buffer);
 
                 eps += ady;
                 if (eps << 1 >= adx) {
@@ -55,7 +53,7 @@ void drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *buffer) {
         else {
             eps = (adx - ady) >> 1;
             for (int16_t x = x0, y = y0; sy < 0 ? y >= y1 : y <= y1; y += sy) {
-                setpixel(x, y, buffer);
+                setpixel(x, y, Buffer);
 
                 eps += adx;
                 if (eps << 1 >= ady) {
@@ -68,11 +66,8 @@ void drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *buffer) {
 }
 
 Glyph_Line *get_glyph_Line(uint8_t c) {
-    if (c == '_')
-        return &font_table[46];
-
     for (uint8_t i = 0; i < sizeof(font_table) / sizeof(Glyph_Line); i++)
-        if (font_table[i].c == c || font_table[i].c == (c - 32))
+        if (font_table[i].c == c)
             return &font_table[i];
 
     return NULL; // Character not supported
@@ -86,10 +81,10 @@ void draw_text(char *str, int16_t x, int16_t y, uint8_t scale, uint8_t deph) {
 
         for (uint8_t j = 0; j < deph; j++) {
             for (uint8_t i = 0; i < g->segment_count; i++) {
-                drawline((x + j + ((g->segments[i].x1 * scale))),
-                         (y + ((g->segments[i].y1 * scale))),
-                         (x + j + ((g->segments[i].x2 * scale))),
-                         (y + ((g->segments[i].y2 * scale))), Buffer);
+                Fontdrawline((x + j + ((g->segments[i].x1 * scale))),
+                             (y + ((g->segments[i].y1 * scale))),
+                             (x + j + ((g->segments[i].x2 * scale))),
+                             (y + ((g->segments[i].y2 * scale))), Buffer);
             }
         }
         x += Font_Width * scale + space; // Advance cursor
@@ -102,11 +97,12 @@ void GLCD_DrawChar(char c, uint8_t x, uint8_t y, uint8_t scale, uint8_t deph) {
         return;
     for (uint8_t j = 0; j < deph; j++) {
         for (uint8_t i = 0; i < g->segment_count; i++) {
-            drawline((x + j + ((g->segments[i].x1 * scale))), (y + ((g->segments[i].y1 * scale))),
-                     (x + j + ((g->segments[i].x2 * scale))), (y + ((g->segments[i].y2 * scale))),
-                     Buffer);
+            Fontdrawline((x + j + ((g->segments[i].x1 * scale))),
+                         (y + ((g->segments[i].y1 * scale))),
+                         (x + j + ((g->segments[i].x2 * scale))),
+                         (y + ((g->segments[i].y2 * scale))), Buffer);
         }
     }
 }
 
-// #endif
+#endif

@@ -106,8 +106,8 @@ void Print(char *Buffer) {
                     wprintf(L"■");
 
                 else
-                    // wprintf(L" ");
-                    wprintf(L"□");
+                    wprintf(L" ");
+                    // wprintf(L"□");
             }
 
             Buffer++;
@@ -149,40 +149,39 @@ void FillBuffer(int XOffset, int YOffset, char *Data, int Width, int Height, cha
         XOffset = ORGX;
     }
 }
+void drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, char *buffer) {
+    if ((x0 < WIDTH && x1 < WIDTH) && (y0 < HEIGHT && y1 < HEIGHT)) {
+        int16_t adx = (((x1 >= x0) ? x1 - x0 : x0 - x1) + 1) << 1;
+        int16_t ady = (((y1 >= y0) ? y1 - y0 : y0 - y1) + 1) << 1;
 
-void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
-    int16_t adx = (((x1 >= x0) ? x1 - x0 : x0 - x1) + 1) << 1;
-    int16_t ady = (((y1 >= y0) ? y1 - y0 : y0 - y1) + 1) << 1;
+        int8_t sx   = (x0 < x1) ? 1 : -1;
+        int8_t sy   = (y0 < y1) ? 1 : -1;
 
-    int8_t sx   = (x0 < x1) ? 1 : -1;
-    int8_t sy   = (y0 < y1) ? 1 : -1;
+        int16_t eps;
 
-    int16_t eps;
+        if (adx > ady) {
+            eps = (ady - adx) >> 1;
 
-    if (adx > ady) {
-        eps = (ady - adx) >> 1;
+            for (int16_t x = x0, y = y0; sx < 0 ? x >= x1 : x <= x1; x += sx) {
+                SetPixel(x, y, 1, Buffer);
 
-        for (int16_t x = x0, y = y0; sx < 0 ? x >= x1 : x <= x1; x += sx) {
-            SetPixel(x, y, 1, Buffer);
-            // wprintf(L"(%d,%d)\n", x, y);
-
-            eps += ady;
-            if (eps << 1 >= adx) {
-                y += sy;
-                eps -= adx;
+                eps += ady;
+                if (eps << 1 >= adx) {
+                    y += sy;
+                    eps -= adx;
+                }
             }
         }
-    }
-    else {
-        eps = (adx - ady) >> 1;
-        for (int16_t x = x0, y = y0; sy < 0 ? y >= y1 : y <= y1; y += sy) {
-            SetPixel(x, y, 1, Buffer);
-            // wprintf(L"(%d,%d)\n", x, y);
+        else {
+            eps = (adx - ady) >> 1;
+            for (int16_t x = x0, y = y0; sy < 0 ? y >= y1 : y <= y1; y += sy) {
+                SetPixel(x, y, 1, Buffer);
 
-            eps += adx;
-            if (eps << 1 >= ady) {
-                x += sx;
-                eps -= ady;
+                eps += adx;
+                if (eps << 1 >= ady) {
+                    x += sx;
+                    eps -= ady;
+                }
             }
         }
     }
