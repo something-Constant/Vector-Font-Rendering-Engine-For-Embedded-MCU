@@ -205,12 +205,13 @@ class Window:
         try:
             self.update_winfo(resize=False)
             if self.lineflag == 0:
-                self.cordpoint[len(self.cordpoint) - 1] = self.cordpoint[
-                    len(self.cordpoint) - 1
-                ].replace("},", "}")
-
+            
                 for i in reversed(self.cordpoint):
-                    self.OutPutTextbox.insert("0.0", i + "\n")
+                    if i == self.cordpoint[len(self.cordpoint) - 1]:
+                        self.OutPutTextbox.insert("0.0", i.replace("},", "}") + "\n")
+                        
+                    else:
+                        self.OutPutTextbox.insert("0.0", i + "\n")
 
             else:
                 messagebox.showwarning(
