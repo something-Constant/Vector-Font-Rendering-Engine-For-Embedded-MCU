@@ -36,6 +36,8 @@ class Window:
         self.lineflag = 0
         self.cordpoint = []
 
+        self.outwindow = None
+
         canvasFrame = CTkFrame(self.root, corner_radius=5)
         canvasFrame.place(anchor="nw", relx=0.0, rely=0.0, relwidth=1, relheight=1)
 
@@ -85,6 +87,17 @@ class Window:
         self.canvas.bind("<Button-3>", self.pixel_reset)
 
         self.root.mainloop()
+
+    def out_window(self):
+
+        if self.outwindow:
+            self.outwindow.destroy()
+
+        self.outwindow = CTkToplevel(self.root)
+        self.outwindow.geometry("600x500")
+        self.outwindow.title("pixel Editor")
+
+        
 
     def clear_output(self):
         self.canvas.delete("all")
@@ -189,9 +202,8 @@ class Window:
             fill="white",
         )
 
-        # self.update_winfo(resize=False)
 
-    def print_line_cord(self):
+    def add_line_cord(self):
         self.DrawLine(self.x0, self.y0, self.x1, self.y1)
         self.cordpoint.append(f"{{{self.x0}, {self.y0}, {self.x1}, {self.y1}}},")
 
@@ -205,11 +217,11 @@ class Window:
         try:
             self.update_winfo(resize=False)
             if self.lineflag == 0:
-            
+
                 for i in reversed(self.cordpoint):
                     if i == self.cordpoint[len(self.cordpoint) - 1]:
                         self.OutPutTextbox.insert("0.0", i.replace("},", "}") + "\n")
-                        
+
                     else:
                         self.OutPutTextbox.insert("0.0", i + "\n")
 
@@ -218,10 +230,12 @@ class Window:
                     title="Line Warning", message="last line just has one point"
                 )
 
+            self.out_window()
+
         except:
             pass
 
-        self.OutPutTextbox.configure(state="disabled")
+        self.OutPutTextbox.configure(state="disabled")        
 
     def pixel_set(self, event):
 
@@ -270,7 +284,7 @@ class Window:
             self.y1 = Y
 
             self.lineflag = 0
-            self.print_line_cord()
+            self.add_line_cord()
             self.update_winfo(resize=False)
             return
 
