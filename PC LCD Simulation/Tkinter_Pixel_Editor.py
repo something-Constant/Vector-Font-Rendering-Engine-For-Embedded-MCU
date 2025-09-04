@@ -142,6 +142,8 @@ class Window:
 
     def DrawLine(self, x0, y0, x1, y1, state=True):
         self.randcolor = "#" + secrets.token_hex(3)
+        self.firstcolor = "#" + secrets.token_hex(3)
+        firstflag = 1
         dx = x1 - x0
         dy = y1 - y0
         x_inc = 0
@@ -164,21 +166,35 @@ class Window:
             Y = round(y)
 
             if state:
-                self.pixel = self.canvas.create_rectangle(
-                    (self.PixelWidth * X),
-                    (self.PixelHeight * Y),
-                    ((self.PixelWidth * X) + self.PixelWidth),
-                    ((self.PixelHeight * Y) + self.PixelHeight),
-                    fill=self.randcolor,
-                )
+
+                if firstflag:
+                    self.canvas.create_rectangle(
+                        (self.PixelWidth * X),
+                        (self.PixelHeight * Y),
+                        ((self.PixelWidth * X) + self.PixelWidth),
+                        ((self.PixelHeight * Y) + self.PixelHeight),
+                        fill=self.firstcolor,
+                    )
+                    firstflag = 0
+                else:
+                    self.canvas.create_rectangle(
+                        (self.PixelWidth * X),
+                        (self.PixelHeight * Y),
+                        ((self.PixelWidth * X) + self.PixelWidth),
+                        ((self.PixelHeight * Y) + self.PixelHeight),
+                        fill=self.randcolor,
+                    )
             else:
-                self.pixel = self.canvas.create_rectangle(
+
+                self.canvas.create_rectangle(
                     (self.PixelWidth * X),
                     (self.PixelHeight * Y),
                     ((self.PixelWidth * X) + self.PixelWidth),
                     ((self.PixelHeight * Y) + self.PixelHeight),
                     fill=self.OffColor,
                 )
+                 
+
 
             x += x_inc
             y += y_inc
@@ -299,19 +315,35 @@ class Window:
         X = int(event.x / self.PixelWidth)
         Y = int(event.y / self.PixelHeight)
 
-        for cord in self.cordpoint:
-            if cord[1] == str(X) and cord[4] == str(Y):
-                self.DrawLine(
-                    int(cord[1]), int(cord[4]), int(cord[7]), int(cord[10]), False
+        if self.lineflag == 1:
+            if  self.x0 == X and self.y0 == Y:
+                self.pixel = self.canvas.create_rectangle(
+                    (self.PixelWidth * X),
+                    (self.PixelHeight * Y),
+                    ((self.PixelWidth * X) + self.PixelWidth),
+                    ((self.PixelHeight * Y) + self.PixelHeight),
+                    fill=self.OffColor,
                 )
-                self.cordpoint.remove(cord)
+                self.update_winfo(resize=False)
+                self.lineflag = 0
 
-        if pcord != len(self.cordpoint):
+        if self.lineflag == 0:
+
             for cord in self.cordpoint:
-                self.DrawLine(int(cord[1]), int(cord[4]), int(cord[7]), int(cord[10]))
+                if cord[1] == str(X) and cord[4] == str(Y):
+                    self.DrawLine(
+                        int(cord[1]), int(cord[4]), int(cord[7]), int(cord[10]), False
+                    )
+                    self.cordpoint.remove(cord)
 
-        self.update_winfo(resize=False)
-        self.lineflag = 0
+            if pcord != len(self.cordpoint):
+                for cord in self.cordpoint:
+                    self.DrawLine(
+                        int(cord[1]), int(cord[4]), int(cord[7]), int(cord[10])
+                    )
+
+            self.update_winfo(resize=False)
+            self.lineflag = 0
 
 
 def main():
