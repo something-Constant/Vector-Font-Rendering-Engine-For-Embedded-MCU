@@ -30,7 +30,7 @@ SOFTWARE.
 #define space 4
 
 // Add LCD buffer here
-extern byte Buffer[BufferSize];
+extern uint8_t Buffer[BufferSize];
 // Add LCD setpixel Function here
 #define setpixel(x, y, buffer) BufferSetPixel(x, y, 1, buffer)
 

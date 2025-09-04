@@ -24,15 +24,15 @@ SOFTWARE.
 
 #include "ssd1306.h"
 
-byte Buffer[BufferSize] = {};
+uint8_t Buffer[BufferSize] = {};
 
-void SendLcd(byte Register, byte Data) {
-    byte I2CBuffer[2] = {Register, Data};
+void SendLcd(uint8_t Register, uint8_t Data) {
+    uint8_t I2CBuffer[2] = {Register, Data};
 
     HAL_I2C_Master_Transmit(&I2Ch, LcdAddres, I2CBuffer, 2, 20);
 }
 
-void SetXY(byte x, byte y) {
+void SetXY(uint8_t x, uint8_t y) {
     SendLcd(Command_Reg, Column_Address_Reg);
     SendLcd(Command_Reg, x);
     SendLcd(Command_Reg, Column_end_address);
@@ -42,7 +42,7 @@ void SetXY(byte x, byte y) {
     SendLcd(Command_Reg, Page_end_address);
 }
 
-void ClearLcd(byte x, byte y) {
+void ClearLcd(uint8_t x, uint8_t y) {
     int Aria = (((x + 1) * (y + 1)) << 3);
 
     SetXY(x, y);
@@ -52,7 +52,7 @@ void ClearLcd(byte x, byte y) {
     }
 }
 
-void SetPixel(byte x, byte y, byte Status) {
+void SetPixel(uint8_t x, uint8_t y, uint8_t Status) {
     SetXY(x, (y / 8));
 
     if (Status)
@@ -100,7 +100,7 @@ void LCD_init(void) {
     SendLcd(Command_Reg, Display_ON);
 }
 
-void BufferSetPixel(byte XA, byte YA, byte Status, byte *buffer) {
+void BufferSetPixel(uint8_t XA, uint8_t YA, uint8_t Status, uint8_t *buffer) {
     int Index = (((XA * 8) + ((YA >> 3) * 128 * 8)) >> 3);
 
     if (Status)
@@ -110,7 +110,7 @@ void BufferSetPixel(byte XA, byte YA, byte Status, byte *buffer) {
         buffer[Index] &= ~(0x01 << (YA % 8));
 }
 
-void Bitmap(byte x, byte y, byte *Data, int wight, int hight) {
+void Bitmap(uint8_t x, uint8_t y, uint8_t *Data, int wight, int hight) {
     char k = 0;
 
     if (hight % 8) {
@@ -129,14 +129,15 @@ void Bitmap(byte x, byte y, byte *Data, int wight, int hight) {
     }
 }
 
-void FillBuffer(byte XOffset, byte YOffset, byte *Data, byte Width, byte Height, byte *buffer) {
-    byte ORGX = XOffset;
-    byte Row  = (Width / 8);
-    word Index;
+void FillBuffer(uint8_t XOffset, uint8_t YOffset, uint8_t *Data, uint8_t Width, uint8_t Height,
+                uint8_t *buffer) {
+    uint8_t ORGX = XOffset;
+    uint8_t Row  = (Width >> 3);
+    uint16_t Index;
 
-    for (byte Y = 0; Y < Height; Y++) {
-        for (byte X = 0; X < Row; X++) {
-            for (byte Bit = 0; Bit < 8; Bit++) {
+    for (uint8_t Y = 0; Y < Height; Y++) {
+        for (uint8_t X = 0; X < Row; X++) {
+            for (uint8_t Bit = 0; Bit < 8; Bit++) {
                 Index = (XOffset + (YOffset * 128)) >> 3;
 
                 if (*Data & (0x80 >> Bit))
@@ -153,21 +154,21 @@ void FillBuffer(byte XOffset, byte YOffset, byte *Data, byte Width, byte Height,
     }
 }
 
-void SendBuffer(byte *buffer) {
+void SendBuffer(uint8_t *buffer) {
     SetXY(0, 0);
     for (int x = 0; x < BufferSize; x++) {
         SendLcd(Data_Reg, *buffer++);
     }
 }
 
-void ClearBuffer(byte *buffer) {
+void ClearBuffer(uint8_t *buffer) {
     for (int x = 0; x < BufferSize; x++) {
         *buffer = 0;
         buffer++;
     }
 }
 
-void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, byte *buffer) {
+void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *buffer) {
     int16_t adx = (((x1 >= x0) ? x1 - x0 : x0 - x1) + 1) << 1;
     int16_t ady = (((y1 >= y0) ? y1 - y0 : y0 - y1) + 1) << 1;
 

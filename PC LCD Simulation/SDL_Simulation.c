@@ -4,14 +4,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "./Font_5x7/5x7_Font.h"
 
-#define WINDOW_WIDTH 700
+#define WINDOW_WIDTH 1800
 #define WINDOW_HEIGHT 800
 #define WINDOW_TITLE "Graphic LCD Simulation"
 
 #define SDL_Flags SDL_INIT_VIDEO
-#define PIXEL_SCALE 2
+#define PIXEL_SCALE 1
 #define offset 0
+
+uint8_t deph = 1,  scale = 15;
 
 typedef struct {
     SDL_Window *window;
@@ -60,6 +63,92 @@ void Beziercurve(Bezier *Main) {
               pow(Main->t, 2) * Main->y2;
 }
 /*/
+
+void Fontdrawline(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, Window *Frame) {
+    if ((x0 < WINDOW_WIDTH && x1 < WINDOW_WIDTH) && (y0 < WINDOW_HEIGHT && y1 < WINDOW_HEIGHT)) {
+        int16_t adx = (((x1 >= x0) ? x1 - x0 : x0 - x1) + 1) << 1;
+        int16_t ady = (((y1 >= y0) ? y1 - y0 : y0 - y1) + 1) << 1;
+
+        int8_t sx   = (x0 < x1) ? 1 : -1;
+        int8_t sy   = (y0 < y1) ? 1 : -1;
+
+        int16_t eps;
+
+        if (adx > ady) {
+            eps = (ady - adx) >> 1;
+
+            for (int16_t x = x0, y = y0; sx < 0 ? x >= x1 : x <= x1; x += sx) {
+                SDL_FRect pixel = {.x = (x * PIXEL_SCALE),
+                                   .y = (y * PIXEL_SCALE),
+                                   .w = (PIXEL_SCALE),
+                                   .h = (PIXEL_SCALE)};
+                SDL_RenderFillRect(Frame->render, &pixel);
+
+                eps += ady;
+                if (eps << 1 >= adx) {
+                    y += sy;
+                    eps -= adx;
+                }
+            }
+        }
+        else {
+            eps = (adx - ady) >> 1;
+            for (int16_t x = x0, y = y0; sy < 0 ? y >= y1 : y <= y1; y += sy) {
+                SDL_FRect pixel = {.x = (x * PIXEL_SCALE),
+                                   .y = (y * PIXEL_SCALE),
+                                   .w = (PIXEL_SCALE),
+                                   .h = (PIXEL_SCALE)};
+                SDL_RenderFillRect(Frame->render, &pixel);
+
+                eps += adx;
+                if (eps << 1 >= ady) {
+                    x += sx;
+                    eps -= ady;
+                }
+            }
+        }
+    }
+}
+
+Glyph_Line *get_glyph_Line(uint8_t c) {
+    for (uint8_t i = 0; i < sizeof(font_table) / sizeof(Glyph_Line); i++)
+        if (font_table[i].c == c)
+            return &font_table[i];
+
+    return NULL; // Character not supported
+}
+
+void draw_text(char *str, int16_t x, int16_t y, uint8_t scale, uint8_t deph, Window *Frame) {
+    while (*str) {
+        Glyph_Line *g = get_glyph_Line(*str++);
+        if (! g)
+            return;
+
+        for (uint8_t j = 0; j < deph; j++) {
+            for (uint8_t i = 0; i < g->segment_count; i++) {
+                Fontdrawline((x + j + ((g->segments[i].x1 * scale))),
+                             (y + ((g->segments[i].y1 * scale))),
+                             (x + j + ((g->segments[i].x2 * scale))),
+                             (y + ((g->segments[i].y2 * scale))), Frame);
+            }
+        }
+        x += Font_Width * scale + space; // Advance cursor
+    }
+}
+
+void GLCD_DrawChar(char c, uint8_t x, uint8_t y, uint8_t scale, uint8_t deph, Window *Frame) {
+    Glyph_Line *g = get_glyph_Line(c);
+    if (! g)
+        return;
+    for (uint8_t j = 0; j < deph; j++) {
+        for (uint8_t i = 0; i < g->segment_count; i++) {
+            Fontdrawline((x + j + ((g->segments[i].x1 * scale))),
+                         (y + ((g->segments[i].y1 * scale))),
+                         (x + j + ((g->segments[i].x2 * scale))),
+                         (y + ((g->segments[i].y2 * scale))), Frame);
+        }
+    }
+}
 
 int lerpFix(int min, int max, int t, int step) {
     if (! min && ! t)
@@ -200,12 +289,25 @@ void SDL_Window_Render(Window *Frame) {
         SDL_RenderClear(Frame->render);
         SDL_SetRenderDrawColor(Frame->render, 255, 255, 255, 255);
 
-        if (! flag) {
+        draw_text("ABCDEFGHIJKLMNO", 0, 0, scale, deph, Frame);
+        draw_text("PQRSTUVWXYZabcd", 0, ((scale) * 8), scale, deph, Frame);
+        draw_text("efghijklmnopqrs", 0, ((scale) * 16), scale, deph, Frame);
+        draw_text("tuvwxyz01234567", 0, ((scale) * 24), scale, deph, Frame);
+        draw_text("89/[]_^()?!:~,*", 0, ((scale) * 32), scale, deph, Frame);
+        draw_text("&%=+- < >\\", 0, ((scale) * 40), scale, deph, Frame);
+        
+        // GLCD_DrawChar(' ', 67, ((scale) * 40), scale, deph, Frame);
+        // GLCD_DrawChar(25, 75, ((scale) * 40), scale, deph, Frame);
+        // GLCD_DrawChar(26, 83, ((scale) * 40), scale, deph, Frame);
+        // GLCD_DrawChar(27, 91, ((scale) * 40), scale, 1, Frame);
+
+        /*
+        //////////Bezier curve
             for (int i = 0; i <= First_Bezier.step; i++) {
-                First_Bezier.x = bezier_quad_int(First_Bezier.x0, First_Bezier.x1, First_Bezier.x2,
-                                                 i, First_Bezier.step);
-                First_Bezier.y = bezier_quad_int(First_Bezier.y0, First_Bezier.y1, First_Bezier.y2,
-                                                 i, First_Bezier.step);
+                First_Bezier.x = bezier_quad_int(First_Bezier.x0, First_Bezier.x1, First_Bezier.x2, i,
+                                                 First_Bezier.step);
+                First_Bezier.y = bezier_quad_int(First_Bezier.y0, First_Bezier.y1, First_Bezier.y2, i,
+                                                 First_Bezier.step);
 
                 DrawLine(lerpFix(First_Bezier.x0, First_Bezier.x1, i, First_Bezier.step),
                          lerpFix(First_Bezier.y0, First_Bezier.y1, i, First_Bezier.step),
@@ -218,14 +320,13 @@ void SDL_Window_Render(Window *Frame) {
                                    .h = (PIXEL_SCALE)};
                 SDL_RenderFillRect(Frame->render, &pixel);
 
-                SDL_SetRenderDrawColor(Frame->render, rand() % 256, rand() % 256, rand() % 256,
-                                       255);
+                SDL_SetRenderDrawColor(Frame->render, rand() % 256, rand() % 256, rand() % 256, 255);
             }
 
-            SDL_RenderPresent(Frame->render);
-            SDL_Delay(50);
-            // flag = 1;
-        }
+            */
+
+        SDL_RenderPresent(Frame->render);
+        SDL_Delay(50);
     }
 }
 

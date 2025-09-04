@@ -17,12 +17,13 @@ int main() {
 
 
 
+
     draw_text("ABCDEFGHIJKLMNO", 0, 0, scale, deph);
-    draw_text("PQRSTUVWXYZabcd", 0, 8, scale, deph);
-    draw_text("efghijklmnopqrs", 0, 16, scale, deph);
-    draw_text("tuvwxyz01234567", 0, 24, scale, deph);
-    draw_text("89/[]_^()?!:~,*", 0, 32, scale, deph);
-    draw_text("&%=+-<>\\", 0, 40, scale, deph);
+    draw_text("PQRSTUVWXYZabcd", 0, (8*scale), scale, deph);
+    draw_text("efghijklmnopqrs", 0, (16*scale), scale, deph);
+    draw_text("tuvwxyz01234567", 0, (24*scale), scale, deph);
+    draw_text("89/[]_^()?!:~,*", 0, (32*scale), scale, deph);
+    draw_text("&%=+-<>\\", 0, (40*scale), scale, deph);
 	GLCD_DrawChar(24, 67, 40, 1, 1);
 	GLCD_DrawChar(25, 75, 40, 1, 1);
 	GLCD_DrawChar(26, 83, 40, 1, 1);

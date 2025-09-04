@@ -31,16 +31,13 @@ SOFTWARE.
 
 extern I2C_HandleTypeDef I2Ch;
 
-typedef unsigned char byte;
-typedef unsigned int word;
-
 #define LcdAddres 0x78 // Write mode
 
 #define WIDTH 128
 #define HEIGHT 64
 
 #define BufferSize ((WIDTH * HEIGHT) >> 3)
-extern byte Buffer[BufferSize];
+extern uint8_t Buffer[BufferSize];
 
 #define setpixel(x, y, buffer) BufferSetPixel(x, y, 1, buffer)
 
@@ -80,7 +77,7 @@ extern byte Buffer[BufferSize];
 /*
     set contrast:
 
-    Double byte command to select 1 out of 256
+    Double uint8_t command to select 1 out of 256
     contrast steps. Contrast increases as the value
     increases. (RESET = 0X7F )
 
@@ -204,16 +201,16 @@ Set Display Offset:
 #define Display_COM_Pins_Hardware_Config_Reg 0XDA
 #define Display_COM_Pins_Hardware_Config_Value 0X02
 
-void SendLcd(byte Register, byte Data);
-void SetXY(byte x, byte y);
-void ClearLcd(byte x, byte y);
+void SendLcd(uint8_t Register, uint8_t Data);
+void SetXY(uint8_t x, uint8_t y);
+void ClearLcd(uint8_t x, uint8_t y);
 void LCD_init(void);
-void SetPixel(byte x, byte y, byte Status);
-void BufferSetPixel(byte XA, byte YA, byte Status, byte *buffer);
-void Bitmap(byte x, byte y, byte *Data, int wight, int hight);
-void FillBuffer(byte XOffset, byte YOffset, byte *Data, byte Width, byte Height, byte *buffer);
-void SendBuffer(byte *buffer);
-void ClearBuffer(byte *buffer);
-void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, byte *buffer);
+void SetPixel(uint8_t x, uint8_t y, uint8_t Status);
+void BufferSetPixel(uint8_t XA, uint8_t YA, uint8_t Status, uint8_t *buffer);
+void Bitmap(uint8_t x, uint8_t y, uint8_t *Data, uint16_t wight, uint16_t hight);
+void FillBuffer(uint8_t XOffset, uint8_t YOffset, uint8_t *Data, uint8_t Width, uint8_t Height, uint8_t *buffer);
+void SendBuffer(uint8_t *buffer);
+void ClearBuffer(uint8_t *buffer);
+void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *buffer);
 
 #endif
