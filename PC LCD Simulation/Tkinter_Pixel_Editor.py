@@ -36,8 +36,6 @@ class Window:
         self.lineflag = 0
         self.cordpoint = []
 
-        self.outwindow = None
-
         canvasFrame = CTkFrame(self.root, corner_radius=5)
         canvasFrame.place(anchor="nw", relx=0.0, rely=0.0, relwidth=1, relheight=1)
 
@@ -87,17 +85,6 @@ class Window:
         self.canvas.bind("<Button-3>", self.pixel_reset)
 
         self.root.mainloop()
-
-    def out_window(self):
-
-        if self.outwindow:
-            self.outwindow.destroy()
-
-        self.outwindow = CTkToplevel(self.root)
-        self.outwindow.geometry("600x500")
-        self.outwindow.title("pixel Editor")
-
-        
 
     def clear_output(self):
         self.canvas.delete("all")
@@ -193,8 +180,6 @@ class Window:
                     ((self.PixelHeight * Y) + self.PixelHeight),
                     fill=self.OffColor,
                 )
-                 
-
 
             x += x_inc
             y += y_inc
@@ -218,8 +203,9 @@ class Window:
             fill="white",
         )
 
+        # self.update_winfo(resize=False)
 
-    def add_line_cord(self):
+    def print_line_cord(self):
         self.DrawLine(self.x0, self.y0, self.x1, self.y1)
         self.cordpoint.append(f"{{{self.x0}, {self.y0}, {self.x1}, {self.y1}}},")
 
@@ -246,12 +232,10 @@ class Window:
                     title="Line Warning", message="last line just has one point"
                 )
 
-            self.out_window()
-
         except:
             pass
 
-        self.OutPutTextbox.configure(state="disabled")        
+        self.OutPutTextbox.configure(state="disabled")
 
     def pixel_set(self, event):
 
@@ -300,7 +284,7 @@ class Window:
             self.y1 = Y
 
             self.lineflag = 0
-            self.add_line_cord()
+            self.print_line_cord()
             self.update_winfo(resize=False)
             return
 
@@ -316,7 +300,7 @@ class Window:
         Y = int(event.y / self.PixelHeight)
 
         if self.lineflag == 1:
-            if  self.x0 == X and self.y0 == Y:
+            if self.x0 == X and self.y0 == Y:
                 self.pixel = self.canvas.create_rectangle(
                     (self.PixelWidth * X),
                     (self.PixelHeight * Y),
